@@ -4,6 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../../domain/enums.dart';
 import 'category_dao.dart';
+import 'settings_dao.dart';
 import 'task_dao.dart';
 import 'tables.dart';
 
@@ -11,7 +12,10 @@ part 'database.g.dart';
 
 /// Local-only source of truth (offline-first, CLAUDE.md rule 1). The sync
 /// engine (M5) is the only other thing allowed to touch Supabase directly.
-@DriftDatabase(tables: [Categories, Tasks], daos: [CategoryDao, TaskDao])
+@DriftDatabase(
+  tables: [Categories, Tasks, LocalSettings],
+  daos: [CategoryDao, TaskDao, SettingsDao],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase()
     : super(
@@ -28,15 +32,27 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.connect(super.connection);
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
       await m.createAll();
       await _seedDefaultCategories();
+      await _seedSettingsRow();
+    },
+    onUpgrade: (m, from, to) async {
+      if (from < 2) {
+        await m.createTable(localSettings);
+        await _seedSettingsRow();
+      }
     },
   );
+
+  Future<void> _seedSettingsRow() async {
+    await into(localSettings)
+        .insertOnConflictUpdate(const LocalSettingsCompanion(id: Value(0)));
+  }
 
   Future<void> _seedDefaultCategories() async {
     const uuid = Uuid();

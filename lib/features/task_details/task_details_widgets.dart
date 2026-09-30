@@ -30,10 +30,18 @@ class CategoryDropdown extends StatelessWidget {
 
     return DropdownButtonFormField<String>(
       initialValue: validSelection,
+      // Without this, the field/menu shrink-wrap their widest item instead
+      // of the field's own width, so a long name overflows both the
+      // closed field and the open menu rather than eliding.
+      isExpanded: true,
       decoration: InputDecoration(
         labelText: 'Category',
         filled: true,
         fillColor: colors.surfaceAlt,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: DaybookSpacing.md,
+          vertical: DaybookSpacing.sm,
+        ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(DaybookRadii.card),
           borderSide: BorderSide.none,
@@ -44,11 +52,16 @@ class CategoryDropdown extends StatelessWidget {
           DropdownMenuItem(
             value: category.id,
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
                 ColorDot(color: colorFromHex(category.color)),
                 const SizedBox(width: DaybookSpacing.sm),
-                Text(category.name),
+                Expanded(
+                  child: Text(
+                    category.name,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
               ],
             ),
           ),

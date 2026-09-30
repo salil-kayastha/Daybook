@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/categories/manage_categories_screen.dart';
 import '../../features/day/day_screen.dart';
 import '../../features/style_preview/style_preview_screen.dart';
 
@@ -11,6 +12,10 @@ final GoRouter router = GoRouter(
   initialLocation: '/',
   routes: [
     GoRoute(path: '/', builder: (context, state) => const DayScreen()),
+    GoRoute(
+      path: '/categories',
+      builder: (context, state) => const ManageCategoriesScreen(),
+    ),
     if (kDebugMode)
       GoRoute(
         path: '/style-preview',

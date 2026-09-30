@@ -17,6 +17,15 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
         .watch();
   }
 
+  /// Active and archived (but not deleted) categories, for the Manage
+  /// Categories screen and the archived-tasks grouping on the Day screen.
+  Stream<List<Category>> watchAll() {
+    return (select(categories)
+          ..where((c) => c.deletedAt.isNull())
+          ..orderBy([(c) => OrderingTerm(expression: c.sortOrder)]))
+        .watch();
+  }
+
   Future<void> upsert(CategoriesCompanion entry) =>
       into(categories).insertOnConflictUpdate(entry);
 }

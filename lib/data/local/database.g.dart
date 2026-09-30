@@ -1639,18 +1639,316 @@ class TasksCompanion extends UpdateCompanion<Task> {
   }
 }
 
+class $LocalSettingsTable extends LocalSettings
+    with TableInfo<$LocalSettingsTable, LocalSetting> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LocalSettingsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _defaultCategoryIdMeta = const VerificationMeta(
+    'defaultCategoryId',
+  );
+  @override
+  late final GeneratedColumn<String> defaultCategoryId =
+      GeneratedColumn<String>(
+        'default_category_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES categories (id)',
+        ),
+      );
+  static const VerificationMeta _selectedFilterCategoryIdMeta =
+      const VerificationMeta('selectedFilterCategoryId');
+  @override
+  late final GeneratedColumn<String> selectedFilterCategoryId =
+      GeneratedColumn<String>(
+        'selected_filter_category_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES categories (id)',
+        ),
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    defaultCategoryId,
+    selectedFilterCategoryId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'local_settings';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<LocalSetting> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('default_category_id')) {
+      context.handle(
+        _defaultCategoryIdMeta,
+        defaultCategoryId.isAcceptableOrUnknown(
+          data['default_category_id']!,
+          _defaultCategoryIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('selected_filter_category_id')) {
+      context.handle(
+        _selectedFilterCategoryIdMeta,
+        selectedFilterCategoryId.isAcceptableOrUnknown(
+          data['selected_filter_category_id']!,
+          _selectedFilterCategoryIdMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  LocalSetting map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LocalSetting(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      defaultCategoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}default_category_id'],
+      ),
+      selectedFilterCategoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}selected_filter_category_id'],
+      ),
+    );
+  }
+
+  @override
+  $LocalSettingsTable createAlias(String alias) {
+    return $LocalSettingsTable(attachedDatabase, alias);
+  }
+}
+
+class LocalSetting extends DataClass implements Insertable<LocalSetting> {
+  final int id;
+  final String? defaultCategoryId;
+  final String? selectedFilterCategoryId;
+  const LocalSetting({
+    required this.id,
+    this.defaultCategoryId,
+    this.selectedFilterCategoryId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || defaultCategoryId != null) {
+      map['default_category_id'] = Variable<String>(defaultCategoryId);
+    }
+    if (!nullToAbsent || selectedFilterCategoryId != null) {
+      map['selected_filter_category_id'] = Variable<String>(
+        selectedFilterCategoryId,
+      );
+    }
+    return map;
+  }
+
+  LocalSettingsCompanion toCompanion(bool nullToAbsent) {
+    return LocalSettingsCompanion(
+      id: Value(id),
+      defaultCategoryId: defaultCategoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defaultCategoryId),
+      selectedFilterCategoryId: selectedFilterCategoryId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(selectedFilterCategoryId),
+    );
+  }
+
+  factory LocalSetting.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LocalSetting(
+      id: serializer.fromJson<int>(json['id']),
+      defaultCategoryId: serializer.fromJson<String?>(
+        json['defaultCategoryId'],
+      ),
+      selectedFilterCategoryId: serializer.fromJson<String?>(
+        json['selectedFilterCategoryId'],
+      ),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'defaultCategoryId': serializer.toJson<String?>(defaultCategoryId),
+      'selectedFilterCategoryId': serializer.toJson<String?>(
+        selectedFilterCategoryId,
+      ),
+    };
+  }
+
+  LocalSetting copyWith({
+    int? id,
+    Value<String?> defaultCategoryId = const Value.absent(),
+    Value<String?> selectedFilterCategoryId = const Value.absent(),
+  }) => LocalSetting(
+    id: id ?? this.id,
+    defaultCategoryId: defaultCategoryId.present
+        ? defaultCategoryId.value
+        : this.defaultCategoryId,
+    selectedFilterCategoryId: selectedFilterCategoryId.present
+        ? selectedFilterCategoryId.value
+        : this.selectedFilterCategoryId,
+  );
+  LocalSetting copyWithCompanion(LocalSettingsCompanion data) {
+    return LocalSetting(
+      id: data.id.present ? data.id.value : this.id,
+      defaultCategoryId: data.defaultCategoryId.present
+          ? data.defaultCategoryId.value
+          : this.defaultCategoryId,
+      selectedFilterCategoryId: data.selectedFilterCategoryId.present
+          ? data.selectedFilterCategoryId.value
+          : this.selectedFilterCategoryId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalSetting(')
+          ..write('id: $id, ')
+          ..write('defaultCategoryId: $defaultCategoryId, ')
+          ..write('selectedFilterCategoryId: $selectedFilterCategoryId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, defaultCategoryId, selectedFilterCategoryId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LocalSetting &&
+          other.id == this.id &&
+          other.defaultCategoryId == this.defaultCategoryId &&
+          other.selectedFilterCategoryId == this.selectedFilterCategoryId);
+}
+
+class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
+  final Value<int> id;
+  final Value<String?> defaultCategoryId;
+  final Value<String?> selectedFilterCategoryId;
+  const LocalSettingsCompanion({
+    this.id = const Value.absent(),
+    this.defaultCategoryId = const Value.absent(),
+    this.selectedFilterCategoryId = const Value.absent(),
+  });
+  LocalSettingsCompanion.insert({
+    this.id = const Value.absent(),
+    this.defaultCategoryId = const Value.absent(),
+    this.selectedFilterCategoryId = const Value.absent(),
+  });
+  static Insertable<LocalSetting> custom({
+    Expression<int>? id,
+    Expression<String>? defaultCategoryId,
+    Expression<String>? selectedFilterCategoryId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (defaultCategoryId != null) 'default_category_id': defaultCategoryId,
+      if (selectedFilterCategoryId != null)
+        'selected_filter_category_id': selectedFilterCategoryId,
+    });
+  }
+
+  LocalSettingsCompanion copyWith({
+    Value<int>? id,
+    Value<String?>? defaultCategoryId,
+    Value<String?>? selectedFilterCategoryId,
+  }) {
+    return LocalSettingsCompanion(
+      id: id ?? this.id,
+      defaultCategoryId: defaultCategoryId ?? this.defaultCategoryId,
+      selectedFilterCategoryId:
+          selectedFilterCategoryId ?? this.selectedFilterCategoryId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (defaultCategoryId.present) {
+      map['default_category_id'] = Variable<String>(defaultCategoryId.value);
+    }
+    if (selectedFilterCategoryId.present) {
+      map['selected_filter_category_id'] = Variable<String>(
+        selectedFilterCategoryId.value,
+      );
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LocalSettingsCompanion(')
+          ..write('id: $id, ')
+          ..write('defaultCategoryId: $defaultCategoryId, ')
+          ..write('selectedFilterCategoryId: $selectedFilterCategoryId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $CategoriesTable categories = $CategoriesTable(this);
   late final $TasksTable tasks = $TasksTable(this);
+  late final $LocalSettingsTable localSettings = $LocalSettingsTable(this);
   late final CategoryDao categoryDao = CategoryDao(this as AppDatabase);
   late final TaskDao taskDao = TaskDao(this as AppDatabase);
+  late final SettingsDao settingsDao = SettingsDao(this as AppDatabase);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [categories, tasks];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    categories,
+    tasks,
+    localSettings,
+  ];
 }
 
 typedef $$CategoriesTableCreateCompanionBuilder = CategoriesCompanion Function({
@@ -2609,6 +2907,377 @@ typedef $$TasksTableProcessedTableManager =
       Task,
       PrefetchHooks Function({bool categoryId})
     >;
+typedef $$LocalSettingsTableCreateCompanionBuilder =
+    LocalSettingsCompanion Function({
+      Value<int> id,
+      Value<String?> defaultCategoryId,
+      Value<String?> selectedFilterCategoryId,
+    });
+typedef $$LocalSettingsTableUpdateCompanionBuilder =
+    LocalSettingsCompanion Function({
+      Value<int> id,
+      Value<String?> defaultCategoryId,
+      Value<String?> selectedFilterCategoryId,
+    });
+
+final class $$LocalSettingsTableReferences
+    extends BaseReferences<_$AppDatabase, $LocalSettingsTable, LocalSetting> {
+  $$LocalSettingsTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $CategoriesTable _defaultCategoryIdTable(_$AppDatabase db) => db
+      .categories
+      .createAlias('local_settings__default_category_id__categories__id');
+
+  $$CategoriesTableProcessedTableManager? get defaultCategoryId {
+    final $_column = $_itemColumn<String>('default_category_id');
+    if ($_column == null) return null;
+    final manager = $$CategoriesTableTableManager(
+      $_db,
+      $_db.categories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_defaultCategoryIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $CategoriesTable _selectedFilterCategoryIdTable(_$AppDatabase db) =>
+      db.categories.createAlias(
+        'local_settings__selected_filter_category_id__categories__id',
+      );
+
+  $$CategoriesTableProcessedTableManager? get selectedFilterCategoryId {
+    final $_column = $_itemColumn<String>('selected_filter_category_id');
+    if ($_column == null) return null;
+    final manager = $$CategoriesTableTableManager(
+      $_db,
+      $_db.categories,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(
+      _selectedFilterCategoryIdTable($_db),
+    );
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$LocalSettingsTableFilterComposer
+    extends Composer<_$AppDatabase, $LocalSettingsTable> {
+  $$LocalSettingsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$CategoriesTableFilterComposer get defaultCategoryId {
+    final $$CategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.defaultCategoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableFilterComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CategoriesTableFilterComposer get selectedFilterCategoryId {
+    final $$CategoriesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.selectedFilterCategoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableFilterComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LocalSettingsTableOrderingComposer
+    extends Composer<_$AppDatabase, $LocalSettingsTable> {
+  $$LocalSettingsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$CategoriesTableOrderingComposer get defaultCategoryId {
+    final $$CategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.defaultCategoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CategoriesTableOrderingComposer get selectedFilterCategoryId {
+    final $$CategoriesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.selectedFilterCategoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableOrderingComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LocalSettingsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $LocalSettingsTable> {
+  $$LocalSettingsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  $$CategoriesTableAnnotationComposer get defaultCategoryId {
+    final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.defaultCategoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$CategoriesTableAnnotationComposer get selectedFilterCategoryId {
+    final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.selectedFilterCategoryId,
+      referencedTable: $db.categories,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$CategoriesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.categories,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$LocalSettingsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $LocalSettingsTable,
+          LocalSetting,
+          $$LocalSettingsTableFilterComposer,
+          $$LocalSettingsTableOrderingComposer,
+          $$LocalSettingsTableAnnotationComposer,
+          $$LocalSettingsTableCreateCompanionBuilder,
+          $$LocalSettingsTableUpdateCompanionBuilder,
+          (LocalSetting, $$LocalSettingsTableReferences),
+          LocalSetting,
+          PrefetchHooks Function({
+            bool defaultCategoryId,
+            bool selectedFilterCategoryId,
+          })
+        > {
+  $$LocalSettingsTableTableManager(_$AppDatabase db, $LocalSettingsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LocalSettingsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LocalSettingsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LocalSettingsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String?> defaultCategoryId = const Value.absent(),
+                Value<String?> selectedFilterCategoryId = const Value.absent(),
+              }) => LocalSettingsCompanion(
+                id: id,
+                defaultCategoryId: defaultCategoryId,
+                selectedFilterCategoryId: selectedFilterCategoryId,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String?> defaultCategoryId = const Value.absent(),
+                Value<String?> selectedFilterCategoryId = const Value.absent(),
+              }) => LocalSettingsCompanion.insert(
+                id: id,
+                defaultCategoryId: defaultCategoryId,
+                selectedFilterCategoryId: selectedFilterCategoryId,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$LocalSettingsTable, LocalSetting>(table),
+                  $$LocalSettingsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback:
+              ({defaultCategoryId = false, selectedFilterCategoryId = false}) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (defaultCategoryId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.defaultCategoryId,
+                            referencedTable: $$LocalSettingsTableReferences
+                                ._defaultCategoryIdTable(db),
+                            referencedColumn: $$LocalSettingsTableReferences
+                                ._defaultCategoryIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+                        if (selectedFilterCategoryId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.selectedFilterCategoryId,
+                            referencedTable: $$LocalSettingsTableReferences
+                                ._selectedFilterCategoryIdTable(db),
+                            referencedColumn: $$LocalSettingsTableReferences
+                                ._selectedFilterCategoryIdTable(db)
+                                .id,
+                          ) as T;
+                        }
+
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [];
+                  },
+                );
+              },
+        ),
+      );
+}
+
+typedef $$LocalSettingsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $LocalSettingsTable,
+      LocalSetting,
+      $$LocalSettingsTableFilterComposer,
+      $$LocalSettingsTableOrderingComposer,
+      $$LocalSettingsTableAnnotationComposer,
+      $$LocalSettingsTableCreateCompanionBuilder,
+      $$LocalSettingsTableUpdateCompanionBuilder,
+      (LocalSetting, $$LocalSettingsTableReferences),
+      LocalSetting,
+      PrefetchHooks Function({
+        bool defaultCategoryId,
+        bool selectedFilterCategoryId,
+      })
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2617,4 +3286,6 @@ class $AppDatabaseManager {
       $$CategoriesTableTableManager(_db, _db.categories);
   $$TasksTableTableManager get tasks =>
       $$TasksTableTableManager(_db, _db.tasks);
+  $$LocalSettingsTableTableManager get localSettings =>
+      $$LocalSettingsTableTableManager(_db, _db.localSettings);
 }

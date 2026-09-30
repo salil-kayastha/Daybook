@@ -2,8 +2,10 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../data/local/database.dart' show AppDatabase;
 import '../../data/repositories/category_repository.dart';
+import '../../data/repositories/settings_repository.dart';
 import '../../data/repositories/task_repository.dart';
 import '../../domain/category.dart';
+import '../../domain/local_settings.dart';
 import '../../domain/task.dart';
 
 part 'day_providers.g.dart';
@@ -27,9 +29,27 @@ TaskRepository taskRepository(Ref ref) {
   return TaskRepository(database.taskDao);
 }
 
+@Riverpod(keepAlive: true)
+SettingsRepository settingsRepository(Ref ref) {
+  final database = ref.watch(appDatabaseProvider);
+  return SettingsRepository(database.settingsDao);
+}
+
 @riverpod
 Stream<List<Category>> activeCategories(Ref ref) {
   return ref.watch(categoryRepositoryProvider).watchActive();
+}
+
+/// Active and archived categories, for the Manage Categories screen and
+/// the archived-tasks grouping on the Day screen.
+@riverpod
+Stream<List<Category>> allCategories(Ref ref) {
+  return ref.watch(categoryRepositoryProvider).watchAll();
+}
+
+@riverpod
+Stream<LocalSettings> localSettings(Ref ref) {
+  return ref.watch(settingsRepositoryProvider).watch();
 }
 
 @riverpod
@@ -53,14 +73,4 @@ class CurrentDayPageIndex extends _$CurrentDayPageIndex {
   int build() => 0;
 
   void set(int index) => state = index;
-}
-
-/// The category last used when creating/editing a task, in-memory only.
-/// New tasks default to this category (or "Office" if never set).
-@riverpod
-class LastUsedCategoryId extends _$LastUsedCategoryId {
-  @override
-  String? build() => null;
-
-  void set(String categoryId) => state = categoryId;
 }

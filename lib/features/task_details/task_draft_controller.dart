@@ -1,6 +1,5 @@
-// Constructor params are public (`repository`, `onCategoryUsed`) but the
-// fields they feed are private; `this._x` initializing formals aren't an
-// option without making the params private too.
+// The `repository` constructor param is public but feeds a private field;
+// `this._repository` isn't an option without making the param private too.
 // ignore_for_file: prefer_initializing_formals
 
 import 'dart:async';
@@ -23,12 +22,10 @@ const _autosaveDelay = Duration(milliseconds: 400);
 class TaskDraftController extends ChangeNotifier {
   TaskDraftController({
     required TaskRepository repository,
-    required ValueChanged<String> onCategoryUsed,
     required String defaultCategoryId,
     Task? initial,
     DateTime? createDate,
   }) : _repository = repository,
-       _onCategoryUsed = onCategoryUsed,
        _isNew = initial == null,
        id = initial?.id ?? const Uuid().v4(),
        _createdAt = initial?.createdAt,
@@ -44,7 +41,6 @@ class TaskDraftController extends ChangeNotifier {
        status = initial?.status ?? TaskStatus.todo;
 
   final TaskRepository _repository;
-  final ValueChanged<String> _onCategoryUsed;
   bool _isNew;
   final String id;
   DateTime? _createdAt;
@@ -76,7 +72,6 @@ class TaskDraftController extends ChangeNotifier {
 
   void updateCategory(String newCategoryId) {
     categoryId = newCategoryId;
-    _onCategoryUsed(newCategoryId);
     notifyListeners();
     _scheduleAutosave();
   }
@@ -153,7 +148,6 @@ class TaskDraftController extends ChangeNotifier {
     _createdAt ??= DateTime.now().toUtc();
     _isNew = false;
     await _persist();
-    _onCategoryUsed(categoryId);
     notifyListeners();
     return true;
   }

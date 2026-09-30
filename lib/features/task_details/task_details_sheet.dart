@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/theme/theme.dart';
-import '../../domain/category.dart';
+import '../../core/utils/category_defaults.dart';
 import '../../domain/enums.dart';
 import '../../domain/local_time.dart';
 import '../../domain/task.dart';
@@ -48,32 +48,17 @@ class _TaskDetailsSheetState extends ConsumerState<TaskDetailsSheet> {
   void initState() {
     super.initState();
     final categories = ref.read(activeCategoriesProvider).value ?? const [];
-    final lastUsed = ref.read(lastUsedCategoryIdProvider);
+    final settings = ref.read(localSettingsProvider).value;
     _controller = TaskDraftController(
       repository: ref.read(taskRepositoryProvider),
-      onCategoryUsed: (id) =>
-          ref.read(lastUsedCategoryIdProvider.notifier).set(id),
-      defaultCategoryId: _resolveDefaultCategoryId(categories, lastUsed),
+      defaultCategoryId:
+          resolveDefaultCategoryId(categories, settings?.defaultCategoryId) ??
+          '',
       initial: widget.initialTask,
       createDate: widget.createDate,
     );
     _titleController = TextEditingController(text: _controller.title);
     _notesController = TextEditingController(text: _controller.notes);
-  }
-
-  String _resolveDefaultCategoryId(
-    List<Category> categories,
-    String? lastUsed,
-  ) {
-    if (categories.isEmpty) return '';
-    if (lastUsed != null && categories.any((c) => c.id == lastUsed)) {
-      return lastUsed;
-    }
-    final office = categories.firstWhere(
-      (c) => c.name == 'Office',
-      orElse: () => categories.first,
-    );
-    return office.id;
   }
 
   @override

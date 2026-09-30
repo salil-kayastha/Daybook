@@ -139,6 +139,54 @@ final class TaskRepositoryProvider
 
 String _$taskRepositoryHash() => r'171d390ca9701c2a75afed8cb156f663ebd0b247';
 
+@ProviderFor(settingsRepository)
+final settingsRepositoryProvider = SettingsRepositoryProvider._();
+
+final class SettingsRepositoryProvider
+    extends
+        $FunctionalProvider<
+          SettingsRepository,
+          SettingsRepository,
+          SettingsRepository
+        >
+    with $Provider<SettingsRepository> {
+  SettingsRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'settingsRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$settingsRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<SettingsRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SettingsRepository create(Ref ref) {
+    return settingsRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SettingsRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SettingsRepository>(value),
+    );
+  }
+}
+
+String _$settingsRepositoryHash() =>
+    r'3d9a4fb65c20d784735812a8065e772b06d7c372';
+
 @ProviderFor(activeCategories)
 final activeCategoriesProvider = ActiveCategoriesProvider._();
 
@@ -177,6 +225,92 @@ final class ActiveCategoriesProvider
 }
 
 String _$activeCategoriesHash() => r'ae74d4ac9dbd3d789d0eb24e3797befe3ba95340';
+
+/// Active and archived categories, for the Manage Categories screen and
+/// the archived-tasks grouping on the Day screen.
+
+@ProviderFor(allCategories)
+final allCategoriesProvider = AllCategoriesProvider._();
+
+/// Active and archived categories, for the Manage Categories screen and
+/// the archived-tasks grouping on the Day screen.
+
+final class AllCategoriesProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Category>>,
+          List<Category>,
+          Stream<List<Category>>
+        >
+    with $FutureModifier<List<Category>>, $StreamProvider<List<Category>> {
+  /// Active and archived categories, for the Manage Categories screen and
+  /// the archived-tasks grouping on the Day screen.
+  AllCategoriesProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'allCategoriesProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$allCategoriesHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<List<Category>> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<List<Category>> create(Ref ref) {
+    return allCategories(ref);
+  }
+}
+
+String _$allCategoriesHash() => r'fff2dc198a2520800df47c16ee214930808d2348';
+
+@ProviderFor(localSettings)
+final localSettingsProvider = LocalSettingsProvider._();
+
+final class LocalSettingsProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<LocalSettings>,
+          LocalSettings,
+          Stream<LocalSettings>
+        >
+    with $FutureModifier<LocalSettings>, $StreamProvider<LocalSettings> {
+  LocalSettingsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'localSettingsProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$localSettingsHash();
+
+  @$internal
+  @override
+  $StreamProviderElement<LocalSettings> $createElement(
+    $ProviderPointer pointer,
+  ) => $StreamProviderElement(pointer);
+
+  @override
+  Stream<LocalSettings> create(Ref ref) {
+    return localSettings(ref);
+  }
+}
+
+String _$localSettingsHash() => r'f6dc417387715c91ceeef27f3f39d03f9ca10601';
 
 @ProviderFor(tasksForDate)
 final tasksForDateProvider = TasksForDateFamily._();
@@ -383,69 +517,6 @@ abstract class _$CurrentDayPageIndex extends $Notifier<int> {
             as $ClassProviderElement<
               AnyNotifier<int, int>,
               int,
-              Object?,
-              Object?
-            >;
-    return element.handleCreate(ref, build);
-  }
-}
-
-/// The category last used when creating/editing a task, in-memory only.
-/// New tasks default to this category (or "Office" if never set).
-
-@ProviderFor(LastUsedCategoryId)
-final lastUsedCategoryIdProvider = LastUsedCategoryIdProvider._();
-
-/// The category last used when creating/editing a task, in-memory only.
-/// New tasks default to this category (or "Office" if never set).
-final class LastUsedCategoryIdProvider
-    extends $NotifierProvider<LastUsedCategoryId, String?> {
-  /// The category last used when creating/editing a task, in-memory only.
-  /// New tasks default to this category (or "Office" if never set).
-  LastUsedCategoryIdProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'lastUsedCategoryIdProvider',
-        isAutoDispose: true,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$lastUsedCategoryIdHash();
-
-  @$internal
-  @override
-  LastUsedCategoryId create() => LastUsedCategoryId();
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(String? value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<String?>(value),
-    );
-  }
-}
-
-String _$lastUsedCategoryIdHash() =>
-    r'b51ae9c1dea04e71dff94ede7524de1f754fd96a';
-
-/// The category last used when creating/editing a task, in-memory only.
-/// New tasks default to this category (or "Office" if never set).
-
-abstract class _$LastUsedCategoryId extends $Notifier<String?> {
-  String? build();
-  @$mustCallSuper
-  @override
-  WhenComplete runBuild() {
-    final ref = this.ref as $Ref<String?, String?>;
-    final element =
-        ref.element
-            as $ClassProviderElement<
-              AnyNotifier<String?, String?>,
-              String?,
               Object?,
               Object?
             >;

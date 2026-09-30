@@ -20,6 +20,22 @@ class Categories extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Local-only device settings — NOT part of the SPEC §4 remote schema yet.
+/// A placeholder for the eventual `public.user_settings` table (added when
+/// sync needs it); for now just the two things M3 needs to persist
+/// per-device: the default category for quick-add/FAB, and the Day
+/// screen's remembered filter chip. Always exactly one row (id 0).
+class LocalSettings extends Table {
+  IntColumn get id => integer().withDefault(const Constant(0))();
+  TextColumn get defaultCategoryId =>
+      text().nullable().references(Categories, #id)();
+  TextColumn get selectedFilterCategoryId =>
+      text().nullable().references(Categories, #id)();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 /// Mirrors `public.tasks` (SPEC §4). `taskDate`/`startTime`/`endTime` are
 /// floating local values stored verbatim — never converted to UTC
 /// (CLAUDE.md rule 5). `checklist` is JSON-encoded text (mirrors the

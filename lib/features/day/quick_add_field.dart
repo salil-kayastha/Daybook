@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
 import '../../core/theme/theme.dart';
-import '../../domain/category.dart';
+import '../../core/utils/category_defaults.dart';
 import '../../domain/task.dart';
 import 'day_providers.dart';
 
@@ -33,9 +33,12 @@ class _QuickAddFieldState extends ConsumerState<QuickAddField> {
     if (title.isEmpty) return;
 
     final categories = ref.read(activeCategoriesProvider).value ?? const [];
-    if (categories.isEmpty) return;
-    final lastUsed = ref.read(lastUsedCategoryIdProvider);
-    final categoryId = _resolveDefaultCategoryId(categories, lastUsed);
+    final settings = ref.read(localSettingsProvider).value;
+    final categoryId = resolveDefaultCategoryId(
+      categories,
+      settings?.defaultCategoryId,
+    );
+    if (categoryId == null) return;
 
     final now = DateTime.now().toUtc();
     final task = Task(
@@ -48,22 +51,7 @@ class _QuickAddFieldState extends ConsumerState<QuickAddField> {
       updatedAt: now,
     );
     await ref.read(taskRepositoryProvider).upsert(task);
-    ref.read(lastUsedCategoryIdProvider.notifier).set(categoryId);
     _controller.clear();
-  }
-
-  String _resolveDefaultCategoryId(
-    List<Category> categories,
-    String? lastUsed,
-  ) {
-    if (lastUsed != null && categories.any((c) => c.id == lastUsed)) {
-      return lastUsed;
-    }
-    final office = categories.firstWhere(
-      (c) => c.name == 'Office',
-      orElse: () => categories.first,
-    );
-    return office.id;
   }
 
   @override

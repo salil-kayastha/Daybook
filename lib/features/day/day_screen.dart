@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/theme/theme.dart';
 import '../../domain/task.dart';
@@ -226,6 +227,11 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             icon: const Icon(Icons.calendar_today_outlined),
             tooltip: 'Pick a date',
             onPressed: _openDatePicker,
+          ),
+          IconButton(
+            icon: const Icon(Icons.category_outlined),
+            tooltip: 'Manage categories',
+            onPressed: () => context.push('/categories'),
           ),
         ],
       ),
