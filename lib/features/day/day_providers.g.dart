@@ -389,3 +389,66 @@ abstract class _$CurrentDayPageIndex extends $Notifier<int> {
     return element.handleCreate(ref, build);
   }
 }
+
+/// The category last used when creating/editing a task, in-memory only.
+/// New tasks default to this category (or "Office" if never set).
+
+@ProviderFor(LastUsedCategoryId)
+final lastUsedCategoryIdProvider = LastUsedCategoryIdProvider._();
+
+/// The category last used when creating/editing a task, in-memory only.
+/// New tasks default to this category (or "Office" if never set).
+final class LastUsedCategoryIdProvider
+    extends $NotifierProvider<LastUsedCategoryId, String?> {
+  /// The category last used when creating/editing a task, in-memory only.
+  /// New tasks default to this category (or "Office" if never set).
+  LastUsedCategoryIdProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'lastUsedCategoryIdProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$lastUsedCategoryIdHash();
+
+  @$internal
+  @override
+  LastUsedCategoryId create() => LastUsedCategoryId();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(String? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<String?>(value),
+    );
+  }
+}
+
+String _$lastUsedCategoryIdHash() =>
+    r'b51ae9c1dea04e71dff94ede7524de1f754fd96a';
+
+/// The category last used when creating/editing a task, in-memory only.
+/// New tasks default to this category (or "Office" if never set).
+
+abstract class _$LastUsedCategoryId extends $Notifier<String?> {
+  String? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<String?, String?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<String?, String?>,
+              String?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

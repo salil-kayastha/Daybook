@@ -72,4 +72,39 @@ void main() {
       expect(dateToPageIndex(mar1) - dateToPageIndex(feb28), 1);
     });
   });
+
+  group('addDays (move to tomorrow / pick date logic)', () {
+    test('adding 1 day is "move to tomorrow"', () {
+      expect(addDays(DateTime(2026, 9, 30), 1), DateTime(2026, 10, 1));
+    });
+
+    test('adding a negative number moves backward', () {
+      expect(addDays(DateTime(2026, 9, 30), -1), DateTime(2026, 9, 29));
+    });
+
+    test('adding 0 is a no-op', () {
+      expect(addDays(DateTime(2026, 9, 30), 0), DateTime(2026, 9, 30));
+    });
+
+    test('crosses a year boundary', () {
+      expect(addDays(DateTime(2025, 12, 31), 1), DateTime(2026, 1, 1));
+    });
+
+    test('crosses a leap day', () {
+      expect(addDays(DateTime(2024, 2, 28), 1), DateTime(2024, 2, 29));
+      expect(addDays(DateTime(2024, 2, 29), 1), DateTime(2024, 3, 1));
+    });
+
+    test('stays on the correct calendar day across a US DST spring-forward '
+        'date (pure calendar math, not affected by the host timezone)', () {
+      // 2026-03-08 is the US DST spring-forward date; date.add(Duration)
+      // arithmetic on a local DateTime can misbehave here. addDays must
+      // still land exactly one calendar day later.
+      expect(addDays(DateTime(2026, 3, 8), 1), DateTime(2026, 3, 9));
+    });
+
+    test('multi-day moves (e.g. "pick a date a week out")', () {
+      expect(addDays(DateTime(2026, 9, 30), 7), DateTime(2026, 10, 7));
+    });
+  });
 }

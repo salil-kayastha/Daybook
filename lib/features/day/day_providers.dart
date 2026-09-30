@@ -54,3 +54,13 @@ class CurrentDayPageIndex extends _$CurrentDayPageIndex {
 
   void set(int index) => state = index;
 }
+
+/// The category last used when creating/editing a task, in-memory only.
+/// New tasks default to this category (or "Office" if never set).
+@riverpod
+class LastUsedCategoryId extends _$LastUsedCategoryId {
+  @override
+  String? build() => null;
+
+  void set(String categoryId) => state = categoryId;
+}

@@ -7,19 +7,28 @@ import '../../domain/enums.dart';
 import '../../domain/task.dart';
 import 'category_section.dart';
 import 'day_providers.dart';
+import 'quick_add_field.dart';
 
 /// One day's content: date header, progress, and a category section per
 /// active category (empty categories hidden — SPEC §7.2).
 class DayPage extends ConsumerWidget {
-  const DayPage({super.key, required this.date});
+  const DayPage({
+    super.key,
+    required this.date,
+    required this.onOpenDetails,
+    required this.onLongPressTask,
+  });
 
   final DateTime date;
+  final ValueChanged<Task> onOpenDetails;
+  final ValueChanged<Task> onLongPressTask;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final text = context.daybookText;
     final categoriesAsync = ref.watch(activeCategoriesProvider);
     final tasksAsync = ref.watch(tasksForDateProvider(date));
+    final isWide = MediaQuery.sizeOf(context).width >= 700;
 
     return categoriesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
@@ -44,8 +53,10 @@ class DayPage extends ConsumerWidget {
                 .toList();
 
             return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(
-                horizontal: DaybookSpacing.screenPaddingPhone,
+              padding: EdgeInsets.symmetric(
+                horizontal: isWide
+                    ? DaybookSpacing.screenPaddingWeb
+                    : DaybookSpacing.screenPaddingPhone,
                 vertical: DaybookSpacing.lg,
               ),
               child: Column(
@@ -70,6 +81,10 @@ class DayPage extends ConsumerWidget {
                         ),
                     ],
                   ),
+                  if (isWide) ...[
+                    const SizedBox(height: DaybookSpacing.lg),
+                    QuickAddField(date: date),
+                  ],
                   const SizedBox(height: DaybookSpacing.xl),
                   if (nonEmptyCategories.isEmpty)
                     _EmptyDay(text: text)
@@ -80,6 +95,8 @@ class DayPage extends ConsumerWidget {
                         tasks: byCategory[category.id]!,
                         onToggle: (task) =>
                             ref.read(taskRepositoryProvider).toggleDone(task),
+                        onOpenDetails: onOpenDetails,
+                        onLongPressTask: onLongPressTask,
                       ),
                       const SizedBox(height: DaybookSpacing.xl),
                     ],

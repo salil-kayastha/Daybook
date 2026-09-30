@@ -20,6 +20,15 @@ DateTime pageIndexToDate(int pageIndex) {
   return DateTime(y, m, d);
 }
 
+/// Adds [days] (positive or negative) to a floating local date using pure
+/// calendar arithmetic — never `date.add(Duration(days: n))`, which risks
+/// landing on the wrong day across a DST transition (CLAUDE.md rule 5).
+DateTime addDays(DateTime date, int days) {
+  final z = _daysFromCivil(date.year, date.month, date.day) + days;
+  final (y, m, d) = _civilFromDays(z);
+  return DateTime(y, m, d);
+}
+
 /// Days since 1970-01-01 for the proleptic Gregorian calendar date
 /// (y, m, d). Pure integer arithmetic — no timezone involved.
 int _daysFromCivil(int y, int m, int d) {

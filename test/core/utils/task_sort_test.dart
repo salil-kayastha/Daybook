@@ -153,5 +153,80 @@ void main() {
 
       expect(tasks.map((t) => t.title), original.map((t) => t.title));
     });
+
+    test('marking a todo task done sinks it below remaining todos', () {
+      final a = _task(title: 'a', sortOrder: 1);
+      final b = _task(title: 'b', sortOrder: 2);
+      final c = _task(title: 'c', sortOrder: 3);
+
+      expect(sortTasksForDaySection([a, b, c]).map((t) => t.title), [
+        'a',
+        'b',
+        'c',
+      ]);
+
+      final bDone = b.copyWith(status: TaskStatus.done);
+      expect(sortTasksForDaySection([a, bDone, c]).map((t) => t.title), [
+        'a',
+        'c',
+        'b',
+      ], reason: 'done sinks below the remaining todos');
+    });
+
+    test('cancelling a done task moves it below the remaining done tasks', () {
+      final todo = _task(title: 'todo');
+      final done = _task(
+        title: 'done',
+        status: TaskStatus.done,
+        createdAt: DateTime(2026, 1, 1),
+      );
+      final willBeCancelled = _task(
+        title: 'will-be-cancelled',
+        status: TaskStatus.done,
+        createdAt: DateTime(2026, 1, 2),
+      );
+
+      expect(
+        sortTasksForDaySection([willBeCancelled, done, todo])
+            .map((t) => t.title),
+        ['todo', 'done', 'will-be-cancelled'],
+        reason: 'both done, tied by earlier createdAt first',
+      );
+
+      final nowCancelled = willBeCancelled.copyWith(
+        status: TaskStatus.cancelled,
+      );
+      expect(
+        sortTasksForDaySection([nowCancelled, done, todo]).map((t) => t.title),
+        ['todo', 'done', 'will-be-cancelled'],
+        reason: 'cancelled now ranks uniquely below done, same end result',
+      );
+    });
+
+    test('restoring a cancelled task to todo re-joins the todo ordering', () {
+      final at = _task(
+        title: 'at',
+        timeMode: TimeMode.at,
+        startTime: const LocalTime(9, 0),
+      );
+      final cancelled = _task(
+        title: 'was-cancelled',
+        status: TaskStatus.cancelled,
+      );
+
+      expect(sortTasksForDaySection([cancelled, at]).map((t) => t.title), [
+        'at',
+        'was-cancelled',
+      ]);
+
+      final restored = cancelled.copyWith(
+        status: TaskStatus.todo,
+        sortOrder: 0,
+      );
+      expect(sortTasksForDaySection([restored, at]).map((t) => t.title), [
+        'at',
+        'was-cancelled',
+      ], reason: 'restored todo with no time sorts after the timed todo');
+    });
   });
 }

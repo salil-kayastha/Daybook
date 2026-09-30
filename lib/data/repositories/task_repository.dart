@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:drift/drift.dart' show Value;
-import 'package:uuid/uuid.dart';
 
+import '../../core/utils/date_page.dart';
 import '../../domain/checklist_item.dart';
 import '../../domain/enums.dart';
 import '../../domain/local_time.dart';
@@ -14,7 +14,6 @@ class TaskRepository {
   TaskRepository(this._dao);
 
   final TaskDao _dao;
-  static const _uuid = Uuid();
 
   Stream<List<Task>> watchForDate(DateTime date) =>
       _dao.watchForDate(date).map((rows) => rows.map(_toDomain).toList());
@@ -38,75 +37,52 @@ class TaskRepository {
     );
   }
 
-  Future<int> countAll() => _dao.countAll();
-
-  /// Debug-only helper (M1): seed a handful of sample tasks so the Day
-  /// screen layout can be eyeballed before task CRUD exists (M2).
-  Future<void> seedDebugSamplesForDate(
-    String officeId,
-    String personalId,
-    DateTime date,
-  ) async {
+  /// Explicit "Cancel task" action (SPEC §7.3 status actions).
+  Future<void> cancel(Task task) {
     final now = DateTime.now().toUtc();
-    final normalized = DateTime(date.year, date.month, date.day);
-
-    Task sample({
-      required String title,
-      required String categoryId,
-      TimeMode timeMode = TimeMode.none,
-      LocalTime? startTime,
-      LocalTime? endTime,
-      TaskStatus status = TaskStatus.todo,
-      required double sortOrder,
-    }) {
-      return Task(
-        id: _uuid.v4(),
-        categoryId: categoryId,
-        title: title,
-        taskDate: normalized,
-        timeMode: timeMode,
-        startTime: startTime,
-        endTime: endTime,
-        status: status,
-        completedAt: status == TaskStatus.done ? now : null,
-        sortOrder: sortOrder,
-        createdAt: now,
-        updatedAt: now,
-      );
-    }
-
-    final samples = [
-      sample(
-        title: 'Meeting',
-        categoryId: officeId,
-        timeMode: TimeMode.at,
-        startTime: const LocalTime(9, 0),
-        sortOrder: 1,
-      ),
-      sample(
-        title: 'Watch handover videos',
-        categoryId: officeId,
-        timeMode: TimeMode.window,
-        startTime: const LocalTime(9, 0),
-        endTime: const LocalTime(18, 0),
-        sortOrder: 2,
-      ),
-      sample(title: 'Write blog', categoryId: personalId, sortOrder: 1),
-      sample(
-        title: 'Buy bike parts',
-        categoryId: personalId,
-        status: TaskStatus.done,
-        sortOrder: 2,
-      ),
-      sample(
-        title: 'Watch terraform videos',
-        categoryId: personalId,
+    return upsert(
+      task.copyWith(
         status: TaskStatus.cancelled,
-        sortOrder: 3,
+        completedAt: null,
+        updatedAt: now,
       ),
-    ];
+    );
+  }
 
-    await _dao.insertAllForDebug(samples.map(_toCompanion).toList());
+  /// "Restore" action: un-does done/cancelled, back to todo.
+  Future<void> restore(Task task) {
+    final now = DateTime.now().toUtc();
+    return upsert(
+      task.copyWith(status: TaskStatus.todo, completedAt: null, updatedAt: now),
+    );
+  }
+
+  Future<void> moveToDate(Task task, DateTime date) {
+    final now = DateTime.now().toUtc();
+    return upsert(
+      task.copyWith(
+        taskDate: DateTime(date.year, date.month, date.day),
+        updatedAt: now,
+      ),
+    );
+  }
+
+  Future<void> moveToTomorrow(Task task) =>
+      moveToDate(task, addDays(task.taskDate, 1));
+
+  /// Soft delete (CLAUDE.md rule 6) — sets `deleted_at`, hidden by every
+  /// query. Pass the same [task] to [restore] via an Undo action to bring
+  /// it back (as long as the caller kept a reference to it).
+  Future<void> softDelete(Task task) {
+    final now = DateTime.now().toUtc();
+    return upsert(task.copyWith(deletedAt: now, updatedAt: now));
+  }
+
+  /// Undo for [softDelete]: clears `deleted_at`, keeping status/fields as
+  /// they were.
+  Future<void> undoDelete(Task task) {
+    final now = DateTime.now().toUtc();
+    return upsert(task.copyWith(deletedAt: null, updatedAt: now));
   }
 
   db.TasksCompanion _toCompanion(Task task) {

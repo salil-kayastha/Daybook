@@ -17,11 +17,15 @@ class CategorySection extends StatelessWidget {
     required this.category,
     required this.tasks,
     required this.onToggle,
+    required this.onOpenDetails,
+    required this.onLongPressTask,
   });
 
   final Category category;
   final List<Task> tasks;
   final ValueChanged<Task> onToggle;
+  final ValueChanged<Task> onOpenDetails;
+  final ValueChanged<Task> onLongPressTask;
 
   @override
   Widget build(BuildContext context) {
@@ -86,6 +90,8 @@ class CategorySection extends StatelessWidget {
       },
       timeLabel: _timeLabel(task),
       onToggle: () => onToggle(task),
+      onTap: () => onOpenDetails(task),
+      onLongPress: () => onLongPressTask(task),
     );
   }
 

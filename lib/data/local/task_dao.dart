@@ -36,11 +36,4 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
 
   Future<void> upsert(TasksCompanion entry) =>
       into(tasks).insertOnConflictUpdate(entry);
-
-  Future<void> insertAllForDebug(List<TasksCompanion> entries) =>
-      batch((b) => b.insertAll(tasks, entries));
-
-  Future<int> countAll() => (selectOnly(tasks)..addColumns([tasks.id.count()]))
-      .map((row) => row.read(tasks.id.count())!)
-      .getSingle();
 }
