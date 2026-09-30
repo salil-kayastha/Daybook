@@ -1,0 +1,28 @@
+# Daybook
+
+A personal calendar + to-do app. See `docs/SPEC.md` for the full product and technical spec, and `CLAUDE.md` for the rules this repo is built under.
+
+## Setup
+
+```
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter run -d chrome --dart-define-from-file=env.json
+flutter run --dart-define-from-file=env.json
+flutter analyze && flutter test
+```
+
+`env.json` (git-ignored): `{ "SUPABASE_URL": "...", "SUPABASE_PUBLISHABLE_KEY": "..." }`
+
+## Web setup (Drift/sqlite3 wasm)
+
+The local database (Drift/SQLite, offline-first — see CLAUDE.md rule 1) runs on web via a wasm build of SQLite, in a worker so queries don't block the UI thread. That needs two binary/JS files checked into `web/`, which are **not** fetched by `flutter pub get`:
+
+- `web/sqlite3.wasm` — from the `sqlite3` Dart package's GitHub release matching the `sqlite3` version pinned in `pubspec.lock`:
+  `https://github.com/simolus3/sqlite3.dart/releases/download/sqlite3-<version>/sqlite3.wasm`
+- `web/drift_worker.js` — from the `drift` package's GitHub release matching the `drift` version pinned in `pubspec.lock`:
+  `https://github.com/simolus3/drift/releases/download/drift-<version>/drift_worker.js`
+
+Currently pinned to **sqlite3 3.6.0** and **drift 2.35.0**.
+
+**When you bump `drift` or `sqlite3` in `pubspec.yaml`:** re-download both files from the matching release tag above and replace the ones in `web/`. A mismatched `sqlite3.wasm`/`drift_worker.js` pair (or a pair that doesn't match the Dart-side package version) is a common source of web-only Drift errors, including `Invalid argument(s): When compiling to the web, the 'web' parameter needs to be set` if the files are missing entirely.

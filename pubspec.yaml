@@ -1,0 +1,58 @@
+name: daybook
+description: "Daybook — a personal calendar + to-do app."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  supabase_flutter: ^2.17.2
+
+  # State management
+  flutter_riverpod: ^3.4.3
+  riverpod_annotation: ^4.0.7
+
+  # Routing
+  go_router: ^18.0.2
+
+  # Local DB (offline-first)
+  drift: ^2.35.0
+  drift_flutter: ^0.3.1
+
+  # Notifications
+  flutter_local_notifications: ^22.3.1
+  timezone: ^0.11.1
+  flutter_timezone: ^5.1.0
+
+  # Fonts
+  google_fonts: ^9.0.0
+
+  # Models
+  freezed_annotation: ^3.1.0
+  json_annotation: ^4.12.0
+
+  # Client-generated UUID v4s for offline-created rows (SPEC §3). Already a
+  # transitive dep of drift; pure Dart, no native code, works everywhere.
+  uuid: ^4.6.0
+
+  # Date formatting (SPEC §14: use intl from day one). Already a transitive
+  # dep; pure Dart, no native code, works everywhere.
+  intl: ^0.20.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  build_runner: ^2.16.1
+  riverpod_generator: ^4.0.9
+  freezed: ^4.0.2
+  json_serializable: ^6.14.1
+  drift_dev: ^2.35.0
+  mocktail: ^1.0.5
+
+flutter:
+  uses-material-design: true
