@@ -8,6 +8,7 @@ import '../../data/local/database_provider.dart';
 import '../../data/sync/sync_status.dart';
 import '../auth/auth_providers.dart';
 import '../sync/sync_providers.dart';
+import 'notifications_settings_section.dart';
 
 /// Account email + sign out (M4), plus a sync status section (M5): last
 /// synced time, pending/failed counts, and a manual "Sync now" (SPEC
@@ -120,6 +121,8 @@ class SettingsScreen extends ConsumerWidget {
               );
             },
           ),
+          const SizedBox(height: DaybookSpacing.xl),
+          const NotificationsSettingsSection(),
         ],
       ),
     );

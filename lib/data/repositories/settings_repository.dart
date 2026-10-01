@@ -18,11 +18,18 @@ class SettingsRepository {
   Future<void> setLastSignedInUserId(String? userId) =>
       _dao.setLastSignedInUserId(userId);
 
+  Future<void> setUseExactAlarms(bool value) => _dao.setUseExactAlarms(value);
+
+  Future<void> setNotificationPermissionRequested(bool value) =>
+      _dao.setNotificationPermissionRequested(value);
+
   LocalSettings _toDomain(db.LocalSetting row) {
     return LocalSettings(
       defaultCategoryId: row.defaultCategoryId,
       selectedFilterCategoryId: row.selectedFilterCategoryId,
       lastSignedInUserId: row.lastSignedInUserId,
+      useExactAlarms: row.useExactAlarms,
+      notificationPermissionRequested: row.notificationPermissionRequested,
     );
   }
 }

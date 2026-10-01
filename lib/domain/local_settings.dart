@@ -10,5 +10,7 @@ abstract class LocalSettings with _$LocalSettings {
     String? defaultCategoryId,
     String? selectedFilterCategoryId,
     String? lastSignedInUserId,
+    @Default(false) bool useExactAlarms,
+    @Default(false) bool notificationPermissionRequested,
   }) = _LocalSettings;
 }

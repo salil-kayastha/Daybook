@@ -41,4 +41,16 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
       (select(tasks)..where((t) => t.id.equals(id))).getSingleOrNull();
 
   Future<List<Task>> getAll() => select(tasks).get();
+
+  /// Non-deleted tasks with `task_date` in `[start, endExclusive)`, for the
+  /// notification scheduler (M6) to build `tasksByDate`.
+  Future<List<Task>> getForDateRange(DateTime start, DateTime endExclusive) {
+    return (select(tasks)..where(
+          (t) =>
+              t.deletedAt.isNull() &
+              t.taskDate.isBiggerOrEqualValue(start) &
+              t.taskDate.isSmallerThanValue(endExclusive),
+        ))
+        .get();
+  }
 }

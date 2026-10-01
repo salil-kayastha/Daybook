@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LocalSettings {
 
- String? get defaultCategoryId; String? get selectedFilterCategoryId; String? get lastSignedInUserId;
+ String? get defaultCategoryId; String? get selectedFilterCategoryId; String? get lastSignedInUserId; bool get useExactAlarms; bool get notificationPermissionRequested;
 /// Create a copy of LocalSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $LocalSettingsCopyWith<LocalSettings> get copyWith => _$LocalSettingsCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as LocalSettings;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocalSettings&&(identical(other.defaultCategoryId, _this.defaultCategoryId) || other.defaultCategoryId == _this.defaultCategoryId)&&(identical(other.selectedFilterCategoryId, _this.selectedFilterCategoryId) || other.selectedFilterCategoryId == _this.selectedFilterCategoryId)&&(identical(other.lastSignedInUserId, _this.lastSignedInUserId) || other.lastSignedInUserId == _this.lastSignedInUserId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocalSettings&&(identical(other.defaultCategoryId, _this.defaultCategoryId) || other.defaultCategoryId == _this.defaultCategoryId)&&(identical(other.selectedFilterCategoryId, _this.selectedFilterCategoryId) || other.selectedFilterCategoryId == _this.selectedFilterCategoryId)&&(identical(other.lastSignedInUserId, _this.lastSignedInUserId) || other.lastSignedInUserId == _this.lastSignedInUserId)&&(identical(other.useExactAlarms, _this.useExactAlarms) || other.useExactAlarms == _this.useExactAlarms)&&(identical(other.notificationPermissionRequested, _this.notificationPermissionRequested) || other.notificationPermissionRequested == _this.notificationPermissionRequested));
 }
 
 
 @override
 int get hashCode {
   final _this = this as LocalSettings;
-  return Object.hash(runtimeType,_this.defaultCategoryId,_this.selectedFilterCategoryId,_this.lastSignedInUserId);
+  return Object.hash(runtimeType,_this.defaultCategoryId,_this.selectedFilterCategoryId,_this.lastSignedInUserId,_this.useExactAlarms,_this.notificationPermissionRequested);
 }
 
 @override
 String toString() {
   final _this = this as LocalSettings;
-  return 'LocalSettings(defaultCategoryId: ${_this.defaultCategoryId}, selectedFilterCategoryId: ${_this.selectedFilterCategoryId}, lastSignedInUserId: ${_this.lastSignedInUserId})';
+  return 'LocalSettings(defaultCategoryId: ${_this.defaultCategoryId}, selectedFilterCategoryId: ${_this.selectedFilterCategoryId}, lastSignedInUserId: ${_this.lastSignedInUserId}, useExactAlarms: ${_this.useExactAlarms}, notificationPermissionRequested: ${_this.notificationPermissionRequested})';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $LocalSettingsCopyWith<$Res>  {
   factory $LocalSettingsCopyWith(LocalSettings value, $Res Function(LocalSettings) _then) = _$LocalSettingsCopyWithImpl;
 @useResult
 $Res call({
- String? defaultCategoryId, String? selectedFilterCategoryId, String? lastSignedInUserId
+ String? defaultCategoryId, String? selectedFilterCategoryId, String? lastSignedInUserId, bool useExactAlarms, bool notificationPermissionRequested
 });
 
 
@@ -68,12 +68,14 @@ class _$LocalSettingsCopyWithImpl<$Res>
 
 /// Create a copy of LocalSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? defaultCategoryId = freezed,Object? selectedFilterCategoryId = freezed,Object? lastSignedInUserId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? defaultCategoryId = freezed,Object? selectedFilterCategoryId = freezed,Object? lastSignedInUserId = freezed,Object? useExactAlarms = null,Object? notificationPermissionRequested = null,}) {
   return _then(LocalSettings(
 defaultCategoryId: freezed == defaultCategoryId ? _self.defaultCategoryId : defaultCategoryId // ignore: cast_nullable_to_non_nullable
 as String?,selectedFilterCategoryId: freezed == selectedFilterCategoryId ? _self.selectedFilterCategoryId : selectedFilterCategoryId // ignore: cast_nullable_to_non_nullable
 as String?,lastSignedInUserId: freezed == lastSignedInUserId ? _self.lastSignedInUserId : lastSignedInUserId // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,useExactAlarms: null == useExactAlarms ? _self.useExactAlarms : useExactAlarms // ignore: cast_nullable_to_non_nullable
+as bool,notificationPermissionRequested: null == notificationPermissionRequested ? _self.notificationPermissionRequested : notificationPermissionRequested // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 
@@ -158,10 +160,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? defaultCategoryId,  String? selectedFilterCategoryId,  String? lastSignedInUserId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? defaultCategoryId,  String? selectedFilterCategoryId,  String? lastSignedInUserId,  bool useExactAlarms,  bool notificationPermissionRequested)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LocalSettings() when $default != null:
-return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.lastSignedInUserId);case _:
+return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.lastSignedInUserId,_that.useExactAlarms,_that.notificationPermissionRequested);case _:
   return orElse();
 
 }
@@ -179,10 +181,10 @@ return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.las
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? defaultCategoryId,  String? selectedFilterCategoryId,  String? lastSignedInUserId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? defaultCategoryId,  String? selectedFilterCategoryId,  String? lastSignedInUserId,  bool useExactAlarms,  bool notificationPermissionRequested)  $default,) {final _that = this;
 switch (_that) {
 case _LocalSettings():
-return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.lastSignedInUserId);case _:
+return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.lastSignedInUserId,_that.useExactAlarms,_that.notificationPermissionRequested);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -199,10 +201,10 @@ return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.las
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? defaultCategoryId,  String? selectedFilterCategoryId,  String? lastSignedInUserId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? defaultCategoryId,  String? selectedFilterCategoryId,  String? lastSignedInUserId,  bool useExactAlarms,  bool notificationPermissionRequested)?  $default,) {final _that = this;
 switch (_that) {
 case _LocalSettings() when $default != null:
-return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.lastSignedInUserId);case _:
+return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.lastSignedInUserId,_that.useExactAlarms,_that.notificationPermissionRequested);case _:
   return null;
 
 }
@@ -214,12 +216,14 @@ return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.las
 
 
 class _LocalSettings implements LocalSettings {
-  const _LocalSettings({this.defaultCategoryId, this.selectedFilterCategoryId, this.lastSignedInUserId});
+  const _LocalSettings({this.defaultCategoryId, this.selectedFilterCategoryId, this.lastSignedInUserId, this.useExactAlarms = false, this.notificationPermissionRequested = false});
   
 
 @override final  String? defaultCategoryId;
 @override final  String? selectedFilterCategoryId;
 @override final  String? lastSignedInUserId;
+@override@JsonKey() final  bool useExactAlarms;
+@override@JsonKey() final  bool notificationPermissionRequested;
 
 /// Create a copy of LocalSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -231,18 +235,18 @@ _$LocalSettingsCopyWith<_LocalSettings> get copyWith => __$LocalSettingsCopyWith
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LocalSettings&&(identical(other.defaultCategoryId, defaultCategoryId) || other.defaultCategoryId == defaultCategoryId)&&(identical(other.selectedFilterCategoryId, selectedFilterCategoryId) || other.selectedFilterCategoryId == selectedFilterCategoryId)&&(identical(other.lastSignedInUserId, lastSignedInUserId) || other.lastSignedInUserId == lastSignedInUserId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LocalSettings&&(identical(other.defaultCategoryId, defaultCategoryId) || other.defaultCategoryId == defaultCategoryId)&&(identical(other.selectedFilterCategoryId, selectedFilterCategoryId) || other.selectedFilterCategoryId == selectedFilterCategoryId)&&(identical(other.lastSignedInUserId, lastSignedInUserId) || other.lastSignedInUserId == lastSignedInUserId)&&(identical(other.useExactAlarms, useExactAlarms) || other.useExactAlarms == useExactAlarms)&&(identical(other.notificationPermissionRequested, notificationPermissionRequested) || other.notificationPermissionRequested == notificationPermissionRequested));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,defaultCategoryId,selectedFilterCategoryId,lastSignedInUserId);
+    return Object.hash(runtimeType,defaultCategoryId,selectedFilterCategoryId,lastSignedInUserId,useExactAlarms,notificationPermissionRequested);
 }
 
 @override
 String toString() {
-    return 'LocalSettings(defaultCategoryId: $defaultCategoryId, selectedFilterCategoryId: $selectedFilterCategoryId, lastSignedInUserId: $lastSignedInUserId)';
+    return 'LocalSettings(defaultCategoryId: $defaultCategoryId, selectedFilterCategoryId: $selectedFilterCategoryId, lastSignedInUserId: $lastSignedInUserId, useExactAlarms: $useExactAlarms, notificationPermissionRequested: $notificationPermissionRequested)';
 }
 
 
@@ -253,7 +257,7 @@ abstract mixin class _$LocalSettingsCopyWith<$Res> implements $LocalSettingsCopy
   factory _$LocalSettingsCopyWith(_LocalSettings value, $Res Function(_LocalSettings) _then) = __$LocalSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- String? defaultCategoryId, String? selectedFilterCategoryId, String? lastSignedInUserId
+ String? defaultCategoryId, String? selectedFilterCategoryId, String? lastSignedInUserId, bool useExactAlarms, bool notificationPermissionRequested
 });
 
 
@@ -270,12 +274,14 @@ class __$LocalSettingsCopyWithImpl<$Res>
 
 /// Create a copy of LocalSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? defaultCategoryId = freezed,Object? selectedFilterCategoryId = freezed,Object? lastSignedInUserId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? defaultCategoryId = freezed,Object? selectedFilterCategoryId = freezed,Object? lastSignedInUserId = freezed,Object? useExactAlarms = null,Object? notificationPermissionRequested = null,}) {
   return _then(_LocalSettings(
 defaultCategoryId: freezed == defaultCategoryId ? _self.defaultCategoryId : defaultCategoryId // ignore: cast_nullable_to_non_nullable
 as String?,selectedFilterCategoryId: freezed == selectedFilterCategoryId ? _self.selectedFilterCategoryId : selectedFilterCategoryId // ignore: cast_nullable_to_non_nullable
 as String?,lastSignedInUserId: freezed == lastSignedInUserId ? _self.lastSignedInUserId : lastSignedInUserId // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,useExactAlarms: null == useExactAlarms ? _self.useExactAlarms : useExactAlarms // ignore: cast_nullable_to_non_nullable
+as bool,notificationPermissionRequested: null == notificationPermissionRequested ? _self.notificationPermissionRequested : notificationPermissionRequested // ignore: cast_nullable_to_non_nullable
+as bool,
   ));
 }
 

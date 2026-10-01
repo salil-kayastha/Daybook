@@ -12,7 +12,12 @@ import '../local/outbox_dao.dart';
 import '../local/task_dao.dart';
 
 class TaskRepository {
-  TaskRepository(this._dao, this._outboxDao, this._requestPush);
+  TaskRepository(
+    this._dao,
+    this._outboxDao,
+    this._requestPush, [
+    this._requestReschedule,
+  ]);
 
   final TaskDao _dao;
   final OutboxDao _outboxDao;
@@ -22,8 +27,12 @@ class TaskRepository {
   /// tests) don't need to depend on the sync engine or Supabase.
   final void Function() _requestPush;
 
+  /// Pings `NotificationBootstrap.requestReschedule`, debounced 2s (SPEC
+  /// §8, M6) — optional so tests don't need to supply it.
+  final void Function()? _requestReschedule;
+
   Stream<List<Task>> watchForDate(DateTime date) =>
-      _dao.watchForDate(date).map((rows) => rows.map(_toDomain).toList());
+      _dao.watchForDate(date).map((rows) => rows.map(taskFromRow).toList());
 
   Stream<Set<DateTime>> watchDatesWithTasksInRange(
     DateTime start,
@@ -41,6 +50,7 @@ class TaskRepository {
     await _dao.upsert(entry);
     await _outboxDao.enqueue(tableName: tableNameTasks, rowId: task.id);
     _requestPush();
+    _requestReschedule?.call();
   }
 
   Future<void> toggleDone(Task task) {
@@ -131,36 +141,38 @@ class TaskRepository {
       deletedAt: Value(task.deletedAt),
     );
   }
+}
 
-  Task _toDomain(db.Task row) {
-    return Task(
-      id: row.id,
-      userId: row.userId,
-      categoryId: row.categoryId,
-      title: row.title,
-      notes: row.notes,
-      checklist: (jsonDecode(row.checklist) as List)
-          .cast<Map<String, dynamic>>()
-          .map(ChecklistItem.fromJson)
-          .toList(),
-      taskDate: row.taskDate,
-      timeMode: row.timeMode,
-      startTime: _parseLocalTime(row.startTime),
-      endTime: _parseLocalTime(row.endTime),
-      status: row.status,
-      completedAt: row.completedAt,
-      sortOrder: row.sortOrder,
-      recurrenceRule: row.recurrenceRule,
-      recurrenceParentId: row.recurrenceParentId,
-      createdAt: row.createdAt,
-      updatedAt: row.updatedAt,
-      deletedAt: row.deletedAt,
-    );
-  }
+/// Shared with `NotificationScheduler` (M6), which also needs to turn raw
+/// rows from `TaskDao.getForDateRange` into domain [Task]s.
+Task taskFromRow(db.Task row) {
+  return Task(
+    id: row.id,
+    userId: row.userId,
+    categoryId: row.categoryId,
+    title: row.title,
+    notes: row.notes,
+    checklist: (jsonDecode(row.checklist) as List)
+        .cast<Map<String, dynamic>>()
+        .map(ChecklistItem.fromJson)
+        .toList(),
+    taskDate: row.taskDate,
+    timeMode: row.timeMode,
+    startTime: _parseLocalTime(row.startTime),
+    endTime: _parseLocalTime(row.endTime),
+    status: row.status,
+    completedAt: row.completedAt,
+    sortOrder: row.sortOrder,
+    recurrenceRule: row.recurrenceRule,
+    recurrenceParentId: row.recurrenceParentId,
+    createdAt: row.createdAt,
+    updatedAt: row.updatedAt,
+    deletedAt: row.deletedAt,
+  );
+}
 
-  LocalTime? _parseLocalTime(String? raw) {
-    if (raw == null) return null;
-    final parts = raw.split(':');
-    return LocalTime(int.parse(parts[0]), int.parse(parts[1]));
-  }
+LocalTime? _parseLocalTime(String? raw) {
+  if (raw == null) return null;
+  final parts = raw.split(':');
+  return LocalTime(int.parse(parts[0]), int.parse(parts[1]));
 }

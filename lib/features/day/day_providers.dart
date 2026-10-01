@@ -8,6 +8,7 @@ import '../../data/repositories/user_settings_repository.dart';
 import '../../domain/category.dart';
 import '../../domain/local_settings.dart';
 import '../../domain/task.dart';
+import '../notifications/notification_providers.dart';
 import '../sync/sync_providers.dart';
 
 part 'day_providers.g.dart';
@@ -27,10 +28,12 @@ CategoryRepository categoryRepository(Ref ref) {
 TaskRepository taskRepository(Ref ref) {
   final database = ref.watch(appDatabaseProvider);
   final engine = ref.watch(syncEngineProvider);
+  final rescheduler = ref.watch(notificationReschedulerProvider);
   return TaskRepository(
     database.taskDao,
     database.outboxDao,
     engine.schedulePush,
+    rescheduler.request,
   );
 }
 
@@ -44,10 +47,12 @@ SettingsRepository settingsRepository(Ref ref) {
 UserSettingsRepository userSettingsRepository(Ref ref) {
   final database = ref.watch(appDatabaseProvider);
   final engine = ref.watch(syncEngineProvider);
+  final rescheduler = ref.watch(notificationReschedulerProvider);
   return UserSettingsRepository(
     database.userSettingsDao,
     database.outboxDao,
     engine.schedulePush,
+    rescheduler.request,
   );
 }
 

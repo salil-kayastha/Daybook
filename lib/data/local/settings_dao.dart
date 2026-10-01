@@ -40,4 +40,22 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
       ),
     );
   }
+
+  Future<void> setUseExactAlarms(bool value) async {
+    await into(localSettings).insertOnConflictUpdate(
+      LocalSettingsCompanion.insert(
+        id: const Value(0),
+        useExactAlarms: Value(value),
+      ),
+    );
+  }
+
+  Future<void> setNotificationPermissionRequested(bool value) async {
+    await into(localSettings).insertOnConflictUpdate(
+      LocalSettingsCompanion.insert(
+        id: const Value(0),
+        notificationPermissionRequested: Value(value),
+      ),
+    );
+  }
 }

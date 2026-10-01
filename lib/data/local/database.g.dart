@@ -1904,12 +1904,44 @@ class $LocalSettingsTable extends LocalSettings
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _useExactAlarmsMeta = const VerificationMeta(
+    'useExactAlarms',
+  );
+  @override
+  late final GeneratedColumn<bool> useExactAlarms = GeneratedColumn<bool>(
+    'use_exact_alarms',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("use_exact_alarms" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _notificationPermissionRequestedMeta =
+      const VerificationMeta('notificationPermissionRequested');
+  @override
+  late final GeneratedColumn<bool> notificationPermissionRequested =
+      GeneratedColumn<bool>(
+        'notification_permission_requested',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("notification_permission_requested" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     defaultCategoryId,
     selectedFilterCategoryId,
     lastSignedInUserId,
+    useExactAlarms,
+    notificationPermissionRequested,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1953,6 +1985,24 @@ class $LocalSettingsTable extends LocalSettings
         ),
       );
     }
+    if (data.containsKey('use_exact_alarms')) {
+      context.handle(
+        _useExactAlarmsMeta,
+        useExactAlarms.isAcceptableOrUnknown(
+          data['use_exact_alarms']!,
+          _useExactAlarmsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('notification_permission_requested')) {
+      context.handle(
+        _notificationPermissionRequestedMeta,
+        notificationPermissionRequested.isAcceptableOrUnknown(
+          data['notification_permission_requested']!,
+          _notificationPermissionRequestedMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1978,6 +2028,14 @@ class $LocalSettingsTable extends LocalSettings
         DriftSqlType.string,
         data['${effectivePrefix}last_signed_in_user_id'],
       ),
+      useExactAlarms: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}use_exact_alarms'],
+      )!,
+      notificationPermissionRequested: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}notification_permission_requested'],
+      )!,
     );
   }
 
@@ -1995,11 +2053,23 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
   /// The Supabase user id last signed in on this device (M4). Used to
   /// detect an account switch — see `AppDatabase.clearAllLocalData`.
   final String? lastSignedInUserId;
+
+  /// Android only (M6): use exact alarms (`SCHEDULE_EXACT_ALARM`) instead
+  /// of the default inexact `AlarmManagerPlus` scheduling. Device-local —
+  /// battery/permission tradeoffs don't travel with the account.
+  final bool useExactAlarms;
+
+  /// Whether the OS notification-permission prompt has been shown on this
+  /// device yet (M6) — requested after the first task is created, not at
+  /// launch, and only once (SPEC §8).
+  final bool notificationPermissionRequested;
   const LocalSetting({
     required this.id,
     this.defaultCategoryId,
     this.selectedFilterCategoryId,
     this.lastSignedInUserId,
+    required this.useExactAlarms,
+    required this.notificationPermissionRequested,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2016,6 +2086,10 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
     if (!nullToAbsent || lastSignedInUserId != null) {
       map['last_signed_in_user_id'] = Variable<String>(lastSignedInUserId);
     }
+    map['use_exact_alarms'] = Variable<bool>(useExactAlarms);
+    map['notification_permission_requested'] = Variable<bool>(
+      notificationPermissionRequested,
+    );
     return map;
   }
 
@@ -2031,6 +2105,8 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
       lastSignedInUserId: lastSignedInUserId == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSignedInUserId),
+      useExactAlarms: Value(useExactAlarms),
+      notificationPermissionRequested: Value(notificationPermissionRequested),
     );
   }
 
@@ -2050,6 +2126,10 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
       lastSignedInUserId: serializer.fromJson<String?>(
         json['lastSignedInUserId'],
       ),
+      useExactAlarms: serializer.fromJson<bool>(json['useExactAlarms']),
+      notificationPermissionRequested: serializer.fromJson<bool>(
+        json['notificationPermissionRequested'],
+      ),
     );
   }
   @override
@@ -2062,6 +2142,10 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
         selectedFilterCategoryId,
       ),
       'lastSignedInUserId': serializer.toJson<String?>(lastSignedInUserId),
+      'useExactAlarms': serializer.toJson<bool>(useExactAlarms),
+      'notificationPermissionRequested': serializer.toJson<bool>(
+        notificationPermissionRequested,
+      ),
     };
   }
 
@@ -2070,6 +2154,8 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
     Value<String?> defaultCategoryId = const Value.absent(),
     Value<String?> selectedFilterCategoryId = const Value.absent(),
     Value<String?> lastSignedInUserId = const Value.absent(),
+    bool? useExactAlarms,
+    bool? notificationPermissionRequested,
   }) => LocalSetting(
     id: id ?? this.id,
     defaultCategoryId: defaultCategoryId.present
@@ -2081,6 +2167,9 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
     lastSignedInUserId: lastSignedInUserId.present
         ? lastSignedInUserId.value
         : this.lastSignedInUserId,
+    useExactAlarms: useExactAlarms ?? this.useExactAlarms,
+    notificationPermissionRequested:
+        notificationPermissionRequested ?? this.notificationPermissionRequested,
   );
   LocalSetting copyWithCompanion(LocalSettingsCompanion data) {
     return LocalSetting(
@@ -2094,6 +2183,13 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
       lastSignedInUserId: data.lastSignedInUserId.present
           ? data.lastSignedInUserId.value
           : this.lastSignedInUserId,
+      useExactAlarms: data.useExactAlarms.present
+          ? data.useExactAlarms.value
+          : this.useExactAlarms,
+      notificationPermissionRequested:
+          data.notificationPermissionRequested.present
+          ? data.notificationPermissionRequested.value
+          : this.notificationPermissionRequested,
     );
   }
 
@@ -2103,7 +2199,11 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
           ..write('id: $id, ')
           ..write('defaultCategoryId: $defaultCategoryId, ')
           ..write('selectedFilterCategoryId: $selectedFilterCategoryId, ')
-          ..write('lastSignedInUserId: $lastSignedInUserId')
+          ..write('lastSignedInUserId: $lastSignedInUserId, ')
+          ..write('useExactAlarms: $useExactAlarms, ')
+          ..write(
+            'notificationPermissionRequested: $notificationPermissionRequested',
+          )
           ..write(')'))
         .toString();
   }
@@ -2114,6 +2214,8 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
     defaultCategoryId,
     selectedFilterCategoryId,
     lastSignedInUserId,
+    useExactAlarms,
+    notificationPermissionRequested,
   );
   @override
   bool operator ==(Object other) =>
@@ -2122,7 +2224,10 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
           other.id == this.id &&
           other.defaultCategoryId == this.defaultCategoryId &&
           other.selectedFilterCategoryId == this.selectedFilterCategoryId &&
-          other.lastSignedInUserId == this.lastSignedInUserId);
+          other.lastSignedInUserId == this.lastSignedInUserId &&
+          other.useExactAlarms == this.useExactAlarms &&
+          other.notificationPermissionRequested ==
+              this.notificationPermissionRequested);
 }
 
 class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
@@ -2130,23 +2235,31 @@ class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
   final Value<String?> defaultCategoryId;
   final Value<String?> selectedFilterCategoryId;
   final Value<String?> lastSignedInUserId;
+  final Value<bool> useExactAlarms;
+  final Value<bool> notificationPermissionRequested;
   const LocalSettingsCompanion({
     this.id = const Value.absent(),
     this.defaultCategoryId = const Value.absent(),
     this.selectedFilterCategoryId = const Value.absent(),
     this.lastSignedInUserId = const Value.absent(),
+    this.useExactAlarms = const Value.absent(),
+    this.notificationPermissionRequested = const Value.absent(),
   });
   LocalSettingsCompanion.insert({
     this.id = const Value.absent(),
     this.defaultCategoryId = const Value.absent(),
     this.selectedFilterCategoryId = const Value.absent(),
     this.lastSignedInUserId = const Value.absent(),
+    this.useExactAlarms = const Value.absent(),
+    this.notificationPermissionRequested = const Value.absent(),
   });
   static Insertable<LocalSetting> custom({
     Expression<int>? id,
     Expression<String>? defaultCategoryId,
     Expression<String>? selectedFilterCategoryId,
     Expression<String>? lastSignedInUserId,
+    Expression<bool>? useExactAlarms,
+    Expression<bool>? notificationPermissionRequested,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2155,6 +2268,9 @@ class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
         'selected_filter_category_id': selectedFilterCategoryId,
       if (lastSignedInUserId != null)
         'last_signed_in_user_id': lastSignedInUserId,
+      if (useExactAlarms != null) 'use_exact_alarms': useExactAlarms,
+      if (notificationPermissionRequested != null)
+        'notification_permission_requested': notificationPermissionRequested,
     });
   }
 
@@ -2163,6 +2279,8 @@ class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
     Value<String?>? defaultCategoryId,
     Value<String?>? selectedFilterCategoryId,
     Value<String?>? lastSignedInUserId,
+    Value<bool>? useExactAlarms,
+    Value<bool>? notificationPermissionRequested,
   }) {
     return LocalSettingsCompanion(
       id: id ?? this.id,
@@ -2170,6 +2288,10 @@ class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
       selectedFilterCategoryId:
           selectedFilterCategoryId ?? this.selectedFilterCategoryId,
       lastSignedInUserId: lastSignedInUserId ?? this.lastSignedInUserId,
+      useExactAlarms: useExactAlarms ?? this.useExactAlarms,
+      notificationPermissionRequested:
+          notificationPermissionRequested ??
+          this.notificationPermissionRequested,
     );
   }
 
@@ -2192,6 +2314,14 @@ class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
         lastSignedInUserId.value,
       );
     }
+    if (useExactAlarms.present) {
+      map['use_exact_alarms'] = Variable<bool>(useExactAlarms.value);
+    }
+    if (notificationPermissionRequested.present) {
+      map['notification_permission_requested'] = Variable<bool>(
+        notificationPermissionRequested.value,
+      );
+    }
     return map;
   }
 
@@ -2201,7 +2331,11 @@ class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
           ..write('id: $id, ')
           ..write('defaultCategoryId: $defaultCategoryId, ')
           ..write('selectedFilterCategoryId: $selectedFilterCategoryId, ')
-          ..write('lastSignedInUserId: $lastSignedInUserId')
+          ..write('lastSignedInUserId: $lastSignedInUserId, ')
+          ..write('useExactAlarms: $useExactAlarms, ')
+          ..write(
+            'notificationPermissionRequested: $notificationPermissionRequested',
+          )
           ..write(')'))
         .toString();
   }
@@ -5057,6 +5191,8 @@ typedef $$LocalSettingsTableCreateCompanionBuilder =
       Value<String?> defaultCategoryId,
       Value<String?> selectedFilterCategoryId,
       Value<String?> lastSignedInUserId,
+      Value<bool> useExactAlarms,
+      Value<bool> notificationPermissionRequested,
     });
 typedef $$LocalSettingsTableUpdateCompanionBuilder =
     LocalSettingsCompanion Function({
@@ -5064,6 +5200,8 @@ typedef $$LocalSettingsTableUpdateCompanionBuilder =
       Value<String?> defaultCategoryId,
       Value<String?> selectedFilterCategoryId,
       Value<String?> lastSignedInUserId,
+      Value<bool> useExactAlarms,
+      Value<bool> notificationPermissionRequested,
     });
 
 final class $$LocalSettingsTableReferences
@@ -5133,6 +5271,16 @@ class $$LocalSettingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get useExactAlarms => $composableBuilder(
+    column: $table.useExactAlarms,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get notificationPermissionRequested => $composableBuilder(
+    column: $table.notificationPermissionRequested,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CategoriesTableFilterComposer get defaultCategoryId {
     final $$CategoriesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -5199,6 +5347,17 @@ class $$LocalSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get useExactAlarms => $composableBuilder(
+    column: $table.useExactAlarms,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get notificationPermissionRequested =>
+      $composableBuilder(
+        column: $table.notificationPermissionRequested,
+        builder: (column) => ColumnOrderings(column),
+      );
+
   $$CategoriesTableOrderingComposer get defaultCategoryId {
     final $$CategoriesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -5262,6 +5421,17 @@ class $$LocalSettingsTableAnnotationComposer
     column: $table.lastSignedInUserId,
     builder: (column) => column,
   );
+
+  GeneratedColumn<bool> get useExactAlarms => $composableBuilder(
+    column: $table.useExactAlarms,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get notificationPermissionRequested =>
+      $composableBuilder(
+        column: $table.notificationPermissionRequested,
+        builder: (column) => column,
+      );
 
   $$CategoriesTableAnnotationComposer get defaultCategoryId {
     final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
@@ -5345,11 +5515,17 @@ class $$LocalSettingsTableTableManager
                 Value<String?> defaultCategoryId = const Value.absent(),
                 Value<String?> selectedFilterCategoryId = const Value.absent(),
                 Value<String?> lastSignedInUserId = const Value.absent(),
+                Value<bool> useExactAlarms = const Value.absent(),
+                Value<bool> notificationPermissionRequested =
+                    const Value.absent(),
               }) => LocalSettingsCompanion(
                 id: id,
                 defaultCategoryId: defaultCategoryId,
                 selectedFilterCategoryId: selectedFilterCategoryId,
                 lastSignedInUserId: lastSignedInUserId,
+                useExactAlarms: useExactAlarms,
+                notificationPermissionRequested:
+                    notificationPermissionRequested,
               ),
           createCompanionCallback:
               ({
@@ -5357,11 +5533,17 @@ class $$LocalSettingsTableTableManager
                 Value<String?> defaultCategoryId = const Value.absent(),
                 Value<String?> selectedFilterCategoryId = const Value.absent(),
                 Value<String?> lastSignedInUserId = const Value.absent(),
+                Value<bool> useExactAlarms = const Value.absent(),
+                Value<bool> notificationPermissionRequested =
+                    const Value.absent(),
               }) => LocalSettingsCompanion.insert(
                 id: id,
                 defaultCategoryId: defaultCategoryId,
                 selectedFilterCategoryId: selectedFilterCategoryId,
                 lastSignedInUserId: lastSignedInUserId,
+                useExactAlarms: useExactAlarms,
+                notificationPermissionRequested:
+                    notificationPermissionRequested,
               ),
           withReferenceMapper: (p0) => p0
               .map(

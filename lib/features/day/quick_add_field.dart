@@ -11,9 +11,10 @@ import 'day_providers.dart';
 /// pane (SPEC §7.4 — the parser and live chips are M7; this is the
 /// minimal M2 version: title in, task created with the default category).
 class QuickAddField extends ConsumerStatefulWidget {
-  const QuickAddField({super.key, required this.date});
+  const QuickAddField({super.key, required this.date, this.autofocus = false});
 
   final DateTime date;
+  final bool autofocus;
 
   @override
   ConsumerState<QuickAddField> createState() => _QuickAddFieldState();
@@ -59,6 +60,7 @@ class _QuickAddFieldState extends ConsumerState<QuickAddField> {
     final colors = context.daybookColors;
     return TextField(
       controller: _controller,
+      autofocus: widget.autofocus,
       decoration: InputDecoration(
         hintText: 'Add a task and press Enter…',
         filled: true,

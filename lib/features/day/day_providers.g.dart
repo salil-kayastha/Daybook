@@ -96,7 +96,7 @@ final class TaskRepositoryProvider
   }
 }
 
-String _$taskRepositoryHash() => r'4e38247f62621473ec796f9fbccf1ec7d1882975';
+String _$taskRepositoryHash() => r'8dcc06415fab611440da9af8c61067cea27b1321';
 
 @ProviderFor(settingsRepository)
 final settingsRepositoryProvider = SettingsRepositoryProvider._();
@@ -192,7 +192,7 @@ final class UserSettingsRepositoryProvider
 }
 
 String _$userSettingsRepositoryHash() =>
-    r'20050628719dcb3bfe1762b46a10fdc4906acf15';
+    r'9fe91765a1b2252fcae57c3eb7fa39492e3fe880';
 
 @ProviderFor(activeCategories)
 final activeCategoriesProvider = ActiveCategoriesProvider._();

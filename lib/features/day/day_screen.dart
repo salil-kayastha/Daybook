@@ -18,7 +18,16 @@ import 'task_actions_sheet.dart';
 /// as a modal bottom sheet on phone, or an embedded right-hand panel on
 /// wide web (SPEC §7.3, §7.6).
 class DayScreen extends ConsumerStatefulWidget {
-  const DayScreen({super.key});
+  const DayScreen({super.key, this.initialDate, this.focusQuickAdd = false});
+
+  /// Set by a notification tap (SPEC §8, M6) to open a day other than
+  /// today — evening notifications open tomorrow.
+  final DateTime? initialDate;
+
+  /// SPEC §8: the evening notification opens tomorrow "with quick-add
+  /// focused" — autofocuses the web `QuickAddField`, or opens the
+  /// create-task sheet (which already autofocuses its title) on phone.
+  final bool focusQuickAdd;
 
   @override
   ConsumerState<DayScreen> createState() => _DayScreenState();
@@ -26,8 +35,11 @@ class DayScreen extends ConsumerStatefulWidget {
 
 class _DayScreenState extends ConsumerState<DayScreen> {
   late final int _todayIndex = controllerIndexForDate(DateTime.now());
+  late final int _startIndex = widget.initialDate != null
+      ? controllerIndexForDate(widget.initialDate!)
+      : _todayIndex;
   late final PageController _controller = PageController(
-    initialPage: _todayIndex,
+    initialPage: _startIndex,
   );
 
   Task? _editingTask;
@@ -37,7 +49,10 @@ class _DayScreenState extends ConsumerState<DayScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(currentDayPageIndexProvider.notifier).set(_todayIndex);
+      ref.read(currentDayPageIndexProvider.notifier).set(_startIndex);
+      if (widget.focusQuickAdd && !_isWide(context)) {
+        _openCreate();
+      }
     });
   }
 
@@ -205,6 +220,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           date: dateForControllerIndex(index),
           onOpenDetails: _openEdit,
           onLongPressTask: _handleLongPress,
+          autofocusQuickAdd: widget.focusQuickAdd && index == _startIndex,
         );
       },
     );

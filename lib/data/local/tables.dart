@@ -45,6 +45,18 @@ class LocalSettings extends Table {
   /// detect an account switch — see `AppDatabase.clearAllLocalData`.
   TextColumn get lastSignedInUserId => text().nullable()();
 
+  /// Android only (M6): use exact alarms (`SCHEDULE_EXACT_ALARM`) instead
+  /// of the default inexact `AlarmManagerPlus` scheduling. Device-local —
+  /// battery/permission tradeoffs don't travel with the account.
+  BoolColumn get useExactAlarms =>
+      boolean().withDefault(const Constant(false))();
+
+  /// Whether the OS notification-permission prompt has been shown on this
+  /// device yet (M6) — requested after the first task is created, not at
+  /// launch, and only once (SPEC §8).
+  BoolColumn get notificationPermissionRequested =>
+      boolean().withDefault(const Constant(false))();
+
   @override
   Set<Column> get primaryKey => {id};
 }

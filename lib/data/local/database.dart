@@ -52,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.connect(super.connection);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -65,11 +65,22 @@ class AppDatabase extends _$AppDatabase {
       if (from < 2) {
         // createTable uses the current (code-defined) schema, so the new
         // table already has every column added since — including
-        // lastSignedInUserId. Don't also run the `from < 3` addColumn step.
+        // lastSignedInUserId, useExactAlarms and
+        // notificationPermissionRequested. Don't also run the addColumn
+        // steps below for those.
         await m.createTable(localSettings);
         await _seedSettingsRow();
-      } else if (from < 3) {
-        await m.addColumn(localSettings, localSettings.lastSignedInUserId);
+      } else {
+        if (from < 3) {
+          await m.addColumn(localSettings, localSettings.lastSignedInUserId);
+        }
+        if (from < 5) {
+          await m.addColumn(localSettings, localSettings.useExactAlarms);
+          await m.addColumn(
+            localSettings,
+            localSettings.notificationPermissionRequested,
+          );
+        }
       }
       if (from < 4) {
         await m.addColumn(categories, categories.syncState);

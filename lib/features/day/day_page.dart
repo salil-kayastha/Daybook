@@ -22,11 +22,16 @@ class DayPage extends ConsumerWidget {
     required this.date,
     required this.onOpenDetails,
     required this.onLongPressTask,
+    this.autofocusQuickAdd = false,
   });
 
   final DateTime date;
   final ValueChanged<Task> onOpenDetails;
   final ValueChanged<Task> onLongPressTask;
+
+  /// SPEC §8 (M6): autofocus the web quick-add bar when arriving here via
+  /// the evening notification tap.
+  final bool autofocusQuickAdd;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -116,7 +121,7 @@ class DayPage extends ConsumerWidget {
             ),
             if (isWide) ...[
               const SizedBox(height: DaybookSpacing.lg),
-              QuickAddField(date: date),
+              QuickAddField(date: date, autofocus: autofocusQuickAdd),
             ],
             const SizedBox(height: DaybookSpacing.xl),
             if (isEmpty)

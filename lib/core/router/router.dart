@@ -43,7 +43,17 @@ GoRouter router(Ref ref) {
     },
     routes: [
       GoRoute(path: '/auth', builder: (context, state) => const AuthScreen()),
-      GoRoute(path: '/', builder: (context, state) => const DayScreen()),
+      GoRoute(
+        path: '/',
+        builder: (context, state) {
+          // Set by a notification tap (SPEC §8, M6) — see `app.dart`.
+          final dateParam = state.uri.queryParameters['date'];
+          return DayScreen(
+            initialDate: dateParam != null ? _parseDate(dateParam) : null,
+            focusQuickAdd: state.uri.queryParameters['focusQuickAdd'] == '1',
+          );
+        },
+      ),
       GoRoute(
         path: '/categories',
         builder: (context, state) => const ManageCategoriesScreen(),
@@ -59,4 +69,14 @@ GoRouter router(Ref ref) {
         ),
     ],
   );
+}
+
+DateTime? _parseDate(String value) {
+  final parts = value.split('-');
+  if (parts.length != 3) return null;
+  final y = int.tryParse(parts[0]);
+  final m = int.tryParse(parts[1]);
+  final d = int.tryParse(parts[2]);
+  if (y == null || m == null || d == null) return null;
+  return DateTime(y, m, d);
 }
