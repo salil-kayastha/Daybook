@@ -28,4 +28,9 @@ class CategoryDao extends DatabaseAccessor<AppDatabase>
 
   Future<void> upsert(CategoriesCompanion entry) =>
       into(categories).insertOnConflictUpdate(entry);
+
+  Future<Category?> getById(String id) =>
+      (select(categories)..where((c) => c.id.equals(id))).getSingleOrNull();
+
+  Future<List<Category>> getAll() => select(categories).get();
 }

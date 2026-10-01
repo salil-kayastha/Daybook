@@ -1,38 +1,54 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
-import '../../data/local/database.dart' show AppDatabase;
+import '../../data/local/database_provider.dart';
 import '../../data/repositories/category_repository.dart';
 import '../../data/repositories/settings_repository.dart';
 import '../../data/repositories/task_repository.dart';
+import '../../data/repositories/user_settings_repository.dart';
 import '../../domain/category.dart';
 import '../../domain/local_settings.dart';
 import '../../domain/task.dart';
+import '../sync/sync_providers.dart';
 
 part 'day_providers.g.dart';
 
 @Riverpod(keepAlive: true)
-AppDatabase appDatabase(Ref ref) {
-  final database = AppDatabase();
-  ref.onDispose(database.close);
-  return database;
-}
-
-@Riverpod(keepAlive: true)
 CategoryRepository categoryRepository(Ref ref) {
   final database = ref.watch(appDatabaseProvider);
-  return CategoryRepository(database.categoryDao);
+  final engine = ref.watch(syncEngineProvider);
+  return CategoryRepository(
+    database.categoryDao,
+    database.outboxDao,
+    engine.schedulePush,
+  );
 }
 
 @Riverpod(keepAlive: true)
 TaskRepository taskRepository(Ref ref) {
   final database = ref.watch(appDatabaseProvider);
-  return TaskRepository(database.taskDao);
+  final engine = ref.watch(syncEngineProvider);
+  return TaskRepository(
+    database.taskDao,
+    database.outboxDao,
+    engine.schedulePush,
+  );
 }
 
 @Riverpod(keepAlive: true)
 SettingsRepository settingsRepository(Ref ref) {
   final database = ref.watch(appDatabaseProvider);
   return SettingsRepository(database.settingsDao);
+}
+
+@Riverpod(keepAlive: true)
+UserSettingsRepository userSettingsRepository(Ref ref) {
+  final database = ref.watch(appDatabaseProvider);
+  final engine = ref.watch(syncEngineProvider);
+  return UserSettingsRepository(
+    database.userSettingsDao,
+    database.outboxDao,
+    engine.schedulePush,
+  );
 }
 
 @riverpod

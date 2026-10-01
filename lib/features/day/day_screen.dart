@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/theme/theme.dart';
+import '../../data/sync/sync_status.dart';
 import '../../domain/task.dart';
+import '../sync/sync_providers.dart';
 import '../task_details/task_details_sheet.dart';
 import 'date_picker_sheet.dart';
 import 'day_page.dart';
@@ -191,6 +193,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     final isToday = currentIndex == _todayIndex;
     final isWide = _isWide(context);
     final colors = context.daybookColors;
+    final syncEngine = ref.watch(syncEngineProvider);
 
     final dayContent = PageView.builder(
       controller: _controller,
@@ -211,6 +214,33 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     return Scaffold(
       appBar: AppBar(
         actions: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: DaybookSpacing.xs),
+            child: Center(
+              child: ValueListenableBuilder<SyncStatus>(
+                valueListenable: syncEngine.status,
+                builder: (context, status, _) {
+                  if (!status.isOnline) {
+                    return Icon(
+                      Icons.cloud_off_outlined,
+                      size: 18,
+                      color: colors.inkMuted,
+                      semanticLabel: 'Offline',
+                    );
+                  }
+                  if (status.isSyncing || status.pendingCount > 0) {
+                    return Icon(
+                      Icons.sync,
+                      size: 18,
+                      color: colors.inkMuted,
+                      semanticLabel: 'Syncing',
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ),
+          ),
           if (!isToday)
             Padding(
               padding: const EdgeInsets.symmetric(
@@ -240,26 +270,52 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           ),
         ],
       ),
-      body: showPanel
-          ? Row(
-              children: [
-                Expanded(child: dayContent),
-                VerticalDivider(width: 1, color: colors.line),
-                SizedBox(
-                  width: 400,
-                  child: TaskDetailsSheet(
-                    key: ValueKey(_editingTask?.id ?? 'create'),
-                    initialTask: _editingTask,
-                    createDate: _creating
-                        ? dateForControllerIndex(currentIndex)
-                        : null,
-                    onClose: _closeDetails,
-                    onDeleted: _handleDeleted,
+      body: Stack(
+        children: [
+          showPanel
+              ? Row(
+                  children: [
+                    Expanded(child: dayContent),
+                    VerticalDivider(width: 1, color: colors.line),
+                    SizedBox(
+                      width: 400,
+                      child: TaskDetailsSheet(
+                        key: ValueKey(_editingTask?.id ?? 'create'),
+                        initialTask: _editingTask,
+                        createDate: _creating
+                            ? dateForControllerIndex(currentIndex)
+                            : null,
+                        onClose: _closeDetails,
+                        onDeleted: _handleDeleted,
+                      ),
+                    ),
+                  ],
+                )
+              : dayContent,
+          ValueListenableBuilder<SyncStatus>(
+            valueListenable: syncEngine.status,
+            builder: (context, status, _) {
+              if (!status.isInitialSyncing) return const SizedBox.shrink();
+              return ColoredBox(
+                color: colors.bg.withValues(alpha: 0.92),
+                child: Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      CircularProgressIndicator(color: colors.primary),
+                      const SizedBox(height: DaybookSpacing.lg),
+                      Text(
+                        'Setting up your data…',
+                        style: context.daybookText.body,
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            )
-          : dayContent,
+              );
+            },
+          ),
+        ],
+      ),
       floatingActionButton: isWide
           ? null
           : FloatingActionButton(

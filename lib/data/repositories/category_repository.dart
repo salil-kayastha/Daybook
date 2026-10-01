@@ -2,13 +2,22 @@ import 'package:drift/drift.dart' show Value;
 import 'package:uuid/uuid.dart';
 
 import '../../domain/category.dart';
+import '../../domain/enums.dart';
 import '../local/category_dao.dart';
 import '../local/database.dart' as db;
+import '../local/outbox_dao.dart';
 
 class CategoryRepository {
-  CategoryRepository(this._dao);
+  CategoryRepository(this._dao, this._outboxDao, this._requestPush);
 
   final CategoryDao _dao;
+  final OutboxDao _outboxDao;
+
+  /// Pings `SyncEngine.schedulePush` (SPEC §10 write path step 3) —
+  /// injected rather than imported directly so this repository (and its
+  /// tests) don't need to depend on the sync engine or Supabase.
+  final void Function() _requestPush;
+
   static const _uuid = Uuid();
 
   Stream<List<Category>> watchActive() =>
@@ -23,7 +32,7 @@ class CategoryRepository {
     required double sortOrder,
   }) {
     final now = DateTime.now().toUtc();
-    return _dao.upsert(
+    return _write(
       db.CategoriesCompanion.insert(
         id: _uuid.v4(),
         name: name,
@@ -57,7 +66,7 @@ class CategoryRepository {
 
   Future<void> _upsert(Category category) {
     final now = DateTime.now().toUtc();
-    return _dao.upsert(
+    return _write(
       db.CategoriesCompanion.insert(
         id: category.id,
         userId: Value(category.userId),
@@ -71,6 +80,23 @@ class CategoryRepository {
         deletedAt: Value(category.deletedAt),
       ),
     );
+  }
+
+  /// Write path (SPEC §10): write pending + `local_changed_at`, enqueue an
+  /// outbox entry, then ping the sync engine.
+  Future<void> _write(db.CategoriesCompanion entry) async {
+    final now = DateTime.now().toUtc();
+    await _dao.upsert(
+      entry.copyWith(
+        syncState: const Value(SyncState.pending),
+        localChangedAt: Value(now),
+      ),
+    );
+    await _outboxDao.enqueue(
+      tableName: tableNameCategories,
+      rowId: entry.id.value,
+    );
+    _requestPush();
   }
 
   Category _toDomain(db.Category row) {

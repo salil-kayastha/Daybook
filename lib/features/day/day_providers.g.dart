@@ -9,47 +9,6 @@ part of 'day_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 
-@ProviderFor(appDatabase)
-final appDatabaseProvider = AppDatabaseProvider._();
-
-final class AppDatabaseProvider
-    extends $FunctionalProvider<AppDatabase, AppDatabase, AppDatabase>
-    with $Provider<AppDatabase> {
-  AppDatabaseProvider._()
-    : super(
-        from: null,
-        argument: null,
-        retry: null,
-        name: r'appDatabaseProvider',
-        isAutoDispose: false,
-        dependencies: null,
-        $allTransitiveDependencies: null,
-      );
-
-  @override
-  String debugGetCreateSourceHash() => _$appDatabaseHash();
-
-  @$internal
-  @override
-  $ProviderElement<AppDatabase> $createElement($ProviderPointer pointer) =>
-      $ProviderElement(pointer);
-
-  @override
-  AppDatabase create(Ref ref) {
-    return appDatabase(ref);
-  }
-
-  /// {@macro riverpod.override_with_value}
-  Override overrideWithValue(AppDatabase value) {
-    return $ProviderOverride(
-      origin: this,
-      providerOverride: $SyncValueProvider<AppDatabase>(value),
-    );
-  }
-}
-
-String _$appDatabaseHash() => r'44154e51c3f3079ee293d8ad0ebd1e17cca871ed';
-
 @ProviderFor(categoryRepository)
 final categoryRepositoryProvider = CategoryRepositoryProvider._();
 
@@ -96,7 +55,7 @@ final class CategoryRepositoryProvider
 }
 
 String _$categoryRepositoryHash() =>
-    r'e31e1cca21bad50dc1e94f4c4ca8effdf7fa5c79';
+    r'4f8ff57b2bc5bcf1710b96df6308e702671b3452';
 
 @ProviderFor(taskRepository)
 final taskRepositoryProvider = TaskRepositoryProvider._();
@@ -137,7 +96,7 @@ final class TaskRepositoryProvider
   }
 }
 
-String _$taskRepositoryHash() => r'171d390ca9701c2a75afed8cb156f663ebd0b247';
+String _$taskRepositoryHash() => r'4e38247f62621473ec796f9fbccf1ec7d1882975';
 
 @ProviderFor(settingsRepository)
 final settingsRepositoryProvider = SettingsRepositoryProvider._();
@@ -186,6 +145,54 @@ final class SettingsRepositoryProvider
 
 String _$settingsRepositoryHash() =>
     r'3d9a4fb65c20d784735812a8065e772b06d7c372';
+
+@ProviderFor(userSettingsRepository)
+final userSettingsRepositoryProvider = UserSettingsRepositoryProvider._();
+
+final class UserSettingsRepositoryProvider
+    extends
+        $FunctionalProvider<
+          UserSettingsRepository,
+          UserSettingsRepository,
+          UserSettingsRepository
+        >
+    with $Provider<UserSettingsRepository> {
+  UserSettingsRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'userSettingsRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$userSettingsRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<UserSettingsRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  UserSettingsRepository create(Ref ref) {
+    return userSettingsRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UserSettingsRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UserSettingsRepository>(value),
+    );
+  }
+}
+
+String _$userSettingsRepositoryHash() =>
+    r'20050628719dcb3bfe1762b46a10fdc4906acf15';
 
 @ProviderFor(activeCategories)
 final activeCategoriesProvider = ActiveCategoriesProvider._();

@@ -8,12 +8,19 @@ import '../../domain/enums.dart';
 import '../../domain/local_time.dart';
 import '../../domain/task.dart';
 import '../local/database.dart' as db;
+import '../local/outbox_dao.dart';
 import '../local/task_dao.dart';
 
 class TaskRepository {
-  TaskRepository(this._dao);
+  TaskRepository(this._dao, this._outboxDao, this._requestPush);
 
   final TaskDao _dao;
+  final OutboxDao _outboxDao;
+
+  /// Pings `SyncEngine.schedulePush` (SPEC §10 write path step 3) —
+  /// injected rather than imported directly so this repository (and its
+  /// tests) don't need to depend on the sync engine or Supabase.
+  final void Function() _requestPush;
 
   Stream<List<Task>> watchForDate(DateTime date) =>
       _dao.watchForDate(date).map((rows) => rows.map(_toDomain).toList());
@@ -23,7 +30,18 @@ class TaskRepository {
     DateTime endExclusive,
   ) => _dao.watchDatesWithTasksInRange(start, endExclusive);
 
-  Future<void> upsert(Task task) => _dao.upsert(_toCompanion(task));
+  /// Write path (SPEC §10): write pending + `local_changed_at`, enqueue an
+  /// outbox entry, then ping the sync engine.
+  Future<void> upsert(Task task) async {
+    final now = DateTime.now().toUtc();
+    final entry = _toCompanion(task).copyWith(
+      syncState: const Value(SyncState.pending),
+      localChangedAt: Value(now),
+    );
+    await _dao.upsert(entry);
+    await _outboxDao.enqueue(tableName: tableNameTasks, rowId: task.id);
+    _requestPush();
+  }
 
   Future<void> toggleDone(Task task) {
     final now = DateTime.now().toUtc();

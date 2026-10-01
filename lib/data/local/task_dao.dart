@@ -36,4 +36,9 @@ class TaskDao extends DatabaseAccessor<AppDatabase> with _$TaskDaoMixin {
 
   Future<void> upsert(TasksCompanion entry) =>
       into(tasks).insertOnConflictUpdate(entry);
+
+  Future<Task?> getById(String id) =>
+      (select(tasks)..where((t) => t.id.equals(id))).getSingleOrNull();
+
+  Future<List<Task>> getAll() => select(tasks).get();
 }

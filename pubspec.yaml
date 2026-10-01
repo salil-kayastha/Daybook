@@ -38,6 +38,10 @@ dependencies:
   # transitive dep of drift; pure Dart, no native code, works everywhere.
   uuid: ^4.6.0
 
+  # Connectivity-regained sync trigger (SPEC §10, M5). Supports
+  # android/ios/web.
+  connectivity_plus: ^7.0.0
+
   # Date formatting (SPEC §14: use intl from day one). Already a transitive
   # dep; pure Dart, no native code, works everywhere.
   intl: ^0.20.3

@@ -1,6 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 import '../../core/utils/user_switch.dart';
+import '../../data/local/database_provider.dart';
 import '../day/day_providers.dart';
 import 'auth_providers.dart';
 
