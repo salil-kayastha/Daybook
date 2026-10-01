@@ -11,6 +11,7 @@ class DaybookApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(selectedThemeModeProvider);
+    final router = ref.watch(routerProvider);
 
     return MaterialApp.router(
       title: 'Daybook',

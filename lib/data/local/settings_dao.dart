@@ -31,4 +31,13 @@ class SettingsDao extends DatabaseAccessor<AppDatabase>
       ),
     );
   }
+
+  Future<void> setLastSignedInUserId(String? userId) async {
+    await into(localSettings).insertOnConflictUpdate(
+      LocalSettingsCompanion.insert(
+        id: const Value(0),
+        lastSignedInUserId: Value(userId),
+      ),
+    );
+  }
 }

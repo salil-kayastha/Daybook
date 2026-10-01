@@ -32,7 +32,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.connect(super.connection);
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -43,8 +43,13 @@ class AppDatabase extends _$AppDatabase {
     },
     onUpgrade: (m, from, to) async {
       if (from < 2) {
+        // createTable uses the current (code-defined) schema, so the new
+        // table already has every column added since — including
+        // lastSignedInUserId. Don't also run the `from < 3` addColumn step.
         await m.createTable(localSettings);
         await _seedSettingsRow();
+      } else if (from < 3) {
+        await m.addColumn(localSettings, localSettings.lastSignedInUserId);
       }
     },
   );
@@ -76,6 +81,26 @@ class AppDatabase extends _$AppDatabase {
           updatedAt: now,
         ),
       ]);
+    });
+  }
+
+  /// Wipes all local categories/tasks and reseeds the defaults, for the
+  /// "a different account signed in on this device" case (M4) — so two
+  /// accounts' data never mix locally. Does **not** touch
+  /// `lastSignedInUserId` (the caller sets that right after) and must
+  /// never be called just because a user signed out (M5 handles clearing
+  /// once data is safely synced).
+  Future<void> clearAllLocalData() async {
+    await transaction(() async {
+      await delete(tasks).go();
+      await delete(categories).go();
+      await (update(localSettings)..where((s) => s.id.equals(0))).write(
+        const LocalSettingsCompanion(
+          defaultCategoryId: Value(null),
+          selectedFilterCategoryId: Value(null),
+        ),
+      );
+      await _seedDefaultCategories();
     });
   }
 }

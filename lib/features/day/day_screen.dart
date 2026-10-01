@@ -233,6 +233,11 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             tooltip: 'Manage categories',
             onPressed: () => context.push('/categories'),
           ),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            tooltip: 'Settings',
+            onPressed: () => context.push('/settings'),
+          ),
         ],
       ),
       body: showPanel

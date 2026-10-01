@@ -43,11 +43,13 @@ Auth is **email + password only for now**. Google sign-in is deferred to a later
 ```
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
-flutter run -d chrome --dart-define-from-file=env.json
+flutter run -d chrome --web-port=3000 --dart-define-from-file=env.json
 flutter run --dart-define-from-file=env.json
 flutter analyze && flutter test
 ```
 `env.json` (git-ignored): `{ "SUPABASE_URL": "...", "SUPABASE_PUBLISHABLE_KEY": "..." }`
+
+Web dev must run on port 3000 (`--web-port=3000`) — the Supabase project's Site URL is `http://localhost:3000`, and auth redirects (email confirmation, password reset) depend on it.
 
 ## Definition of done (every milestone)
 Acceptance criteria met · analyzer clean · tests pass · works on Android emulator and Chrome · light and dark checked · no hardcoded style values · SPEC checklist ticked.

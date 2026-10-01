@@ -1684,11 +1684,23 @@ class $LocalSettingsTable extends LocalSettings
           'REFERENCES categories (id)',
         ),
       );
+  static const VerificationMeta _lastSignedInUserIdMeta =
+      const VerificationMeta('lastSignedInUserId');
+  @override
+  late final GeneratedColumn<String> lastSignedInUserId =
+      GeneratedColumn<String>(
+        'last_signed_in_user_id',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
   @override
   List<GeneratedColumn> get $columns => [
     id,
     defaultCategoryId,
     selectedFilterCategoryId,
+    lastSignedInUserId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1723,6 +1735,15 @@ class $LocalSettingsTable extends LocalSettings
         ),
       );
     }
+    if (data.containsKey('last_signed_in_user_id')) {
+      context.handle(
+        _lastSignedInUserIdMeta,
+        lastSignedInUserId.isAcceptableOrUnknown(
+          data['last_signed_in_user_id']!,
+          _lastSignedInUserIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -1744,6 +1765,10 @@ class $LocalSettingsTable extends LocalSettings
         DriftSqlType.string,
         data['${effectivePrefix}selected_filter_category_id'],
       ),
+      lastSignedInUserId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_signed_in_user_id'],
+      ),
     );
   }
 
@@ -1757,10 +1782,15 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
   final int id;
   final String? defaultCategoryId;
   final String? selectedFilterCategoryId;
+
+  /// The Supabase user id last signed in on this device (M4). Used to
+  /// detect an account switch — see `AppDatabase.clearAllLocalData`.
+  final String? lastSignedInUserId;
   const LocalSetting({
     required this.id,
     this.defaultCategoryId,
     this.selectedFilterCategoryId,
+    this.lastSignedInUserId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1774,6 +1804,9 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
         selectedFilterCategoryId,
       );
     }
+    if (!nullToAbsent || lastSignedInUserId != null) {
+      map['last_signed_in_user_id'] = Variable<String>(lastSignedInUserId);
+    }
     return map;
   }
 
@@ -1786,6 +1819,9 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
       selectedFilterCategoryId: selectedFilterCategoryId == null && nullToAbsent
           ? const Value.absent()
           : Value(selectedFilterCategoryId),
+      lastSignedInUserId: lastSignedInUserId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSignedInUserId),
     );
   }
 
@@ -1802,6 +1838,9 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
       selectedFilterCategoryId: serializer.fromJson<String?>(
         json['selectedFilterCategoryId'],
       ),
+      lastSignedInUserId: serializer.fromJson<String?>(
+        json['lastSignedInUserId'],
+      ),
     );
   }
   @override
@@ -1813,6 +1852,7 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
       'selectedFilterCategoryId': serializer.toJson<String?>(
         selectedFilterCategoryId,
       ),
+      'lastSignedInUserId': serializer.toJson<String?>(lastSignedInUserId),
     };
   }
 
@@ -1820,6 +1860,7 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
     int? id,
     Value<String?> defaultCategoryId = const Value.absent(),
     Value<String?> selectedFilterCategoryId = const Value.absent(),
+    Value<String?> lastSignedInUserId = const Value.absent(),
   }) => LocalSetting(
     id: id ?? this.id,
     defaultCategoryId: defaultCategoryId.present
@@ -1828,6 +1869,9 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
     selectedFilterCategoryId: selectedFilterCategoryId.present
         ? selectedFilterCategoryId.value
         : this.selectedFilterCategoryId,
+    lastSignedInUserId: lastSignedInUserId.present
+        ? lastSignedInUserId.value
+        : this.lastSignedInUserId,
   );
   LocalSetting copyWithCompanion(LocalSettingsCompanion data) {
     return LocalSetting(
@@ -1838,6 +1882,9 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
       selectedFilterCategoryId: data.selectedFilterCategoryId.present
           ? data.selectedFilterCategoryId.value
           : this.selectedFilterCategoryId,
+      lastSignedInUserId: data.lastSignedInUserId.present
+          ? data.lastSignedInUserId.value
+          : this.lastSignedInUserId,
     );
   }
 
@@ -1846,47 +1893,59 @@ class LocalSetting extends DataClass implements Insertable<LocalSetting> {
     return (StringBuffer('LocalSetting(')
           ..write('id: $id, ')
           ..write('defaultCategoryId: $defaultCategoryId, ')
-          ..write('selectedFilterCategoryId: $selectedFilterCategoryId')
+          ..write('selectedFilterCategoryId: $selectedFilterCategoryId, ')
+          ..write('lastSignedInUserId: $lastSignedInUserId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, defaultCategoryId, selectedFilterCategoryId);
+  int get hashCode => Object.hash(
+    id,
+    defaultCategoryId,
+    selectedFilterCategoryId,
+    lastSignedInUserId,
+  );
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is LocalSetting &&
           other.id == this.id &&
           other.defaultCategoryId == this.defaultCategoryId &&
-          other.selectedFilterCategoryId == this.selectedFilterCategoryId);
+          other.selectedFilterCategoryId == this.selectedFilterCategoryId &&
+          other.lastSignedInUserId == this.lastSignedInUserId);
 }
 
 class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
   final Value<int> id;
   final Value<String?> defaultCategoryId;
   final Value<String?> selectedFilterCategoryId;
+  final Value<String?> lastSignedInUserId;
   const LocalSettingsCompanion({
     this.id = const Value.absent(),
     this.defaultCategoryId = const Value.absent(),
     this.selectedFilterCategoryId = const Value.absent(),
+    this.lastSignedInUserId = const Value.absent(),
   });
   LocalSettingsCompanion.insert({
     this.id = const Value.absent(),
     this.defaultCategoryId = const Value.absent(),
     this.selectedFilterCategoryId = const Value.absent(),
+    this.lastSignedInUserId = const Value.absent(),
   });
   static Insertable<LocalSetting> custom({
     Expression<int>? id,
     Expression<String>? defaultCategoryId,
     Expression<String>? selectedFilterCategoryId,
+    Expression<String>? lastSignedInUserId,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (defaultCategoryId != null) 'default_category_id': defaultCategoryId,
       if (selectedFilterCategoryId != null)
         'selected_filter_category_id': selectedFilterCategoryId,
+      if (lastSignedInUserId != null)
+        'last_signed_in_user_id': lastSignedInUserId,
     });
   }
 
@@ -1894,12 +1953,14 @@ class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
     Value<int>? id,
     Value<String?>? defaultCategoryId,
     Value<String?>? selectedFilterCategoryId,
+    Value<String?>? lastSignedInUserId,
   }) {
     return LocalSettingsCompanion(
       id: id ?? this.id,
       defaultCategoryId: defaultCategoryId ?? this.defaultCategoryId,
       selectedFilterCategoryId:
           selectedFilterCategoryId ?? this.selectedFilterCategoryId,
+      lastSignedInUserId: lastSignedInUserId ?? this.lastSignedInUserId,
     );
   }
 
@@ -1917,6 +1978,11 @@ class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
         selectedFilterCategoryId.value,
       );
     }
+    if (lastSignedInUserId.present) {
+      map['last_signed_in_user_id'] = Variable<String>(
+        lastSignedInUserId.value,
+      );
+    }
     return map;
   }
 
@@ -1925,7 +1991,8 @@ class LocalSettingsCompanion extends UpdateCompanion<LocalSetting> {
     return (StringBuffer('LocalSettingsCompanion(')
           ..write('id: $id, ')
           ..write('defaultCategoryId: $defaultCategoryId, ')
-          ..write('selectedFilterCategoryId: $selectedFilterCategoryId')
+          ..write('selectedFilterCategoryId: $selectedFilterCategoryId, ')
+          ..write('lastSignedInUserId: $lastSignedInUserId')
           ..write(')'))
         .toString();
   }
@@ -2912,12 +2979,14 @@ typedef $$LocalSettingsTableCreateCompanionBuilder =
       Value<int> id,
       Value<String?> defaultCategoryId,
       Value<String?> selectedFilterCategoryId,
+      Value<String?> lastSignedInUserId,
     });
 typedef $$LocalSettingsTableUpdateCompanionBuilder =
     LocalSettingsCompanion Function({
       Value<int> id,
       Value<String?> defaultCategoryId,
       Value<String?> selectedFilterCategoryId,
+      Value<String?> lastSignedInUserId,
     });
 
 final class $$LocalSettingsTableReferences
@@ -2982,6 +3051,11 @@ class $$LocalSettingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get lastSignedInUserId => $composableBuilder(
+    column: $table.lastSignedInUserId,
+    builder: (column) => ColumnFilters(column),
+  );
+
   $$CategoriesTableFilterComposer get defaultCategoryId {
     final $$CategoriesTableFilterComposer composer = $composerBuilder(
       composer: this,
@@ -3043,6 +3117,11 @@ class $$LocalSettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get lastSignedInUserId => $composableBuilder(
+    column: $table.lastSignedInUserId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$CategoriesTableOrderingComposer get defaultCategoryId {
     final $$CategoriesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -3101,6 +3180,11 @@ class $$LocalSettingsTableAnnotationComposer
   });
   GeneratedColumn<int> get id =>
       $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get lastSignedInUserId => $composableBuilder(
+    column: $table.lastSignedInUserId,
+    builder: (column) => column,
+  );
 
   $$CategoriesTableAnnotationComposer get defaultCategoryId {
     final $$CategoriesTableAnnotationComposer composer = $composerBuilder(
@@ -3183,20 +3267,24 @@ class $$LocalSettingsTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<String?> defaultCategoryId = const Value.absent(),
                 Value<String?> selectedFilterCategoryId = const Value.absent(),
+                Value<String?> lastSignedInUserId = const Value.absent(),
               }) => LocalSettingsCompanion(
                 id: id,
                 defaultCategoryId: defaultCategoryId,
                 selectedFilterCategoryId: selectedFilterCategoryId,
+                lastSignedInUserId: lastSignedInUserId,
               ),
           createCompanionCallback:
               ({
                 Value<int> id = const Value.absent(),
                 Value<String?> defaultCategoryId = const Value.absent(),
                 Value<String?> selectedFilterCategoryId = const Value.absent(),
+                Value<String?> lastSignedInUserId = const Value.absent(),
               }) => LocalSettingsCompanion.insert(
                 id: id,
                 defaultCategoryId: defaultCategoryId,
                 selectedFilterCategoryId: selectedFilterCategoryId,
+                lastSignedInUserId: lastSignedInUserId,
               ),
           withReferenceMapper: (p0) => p0
               .map(

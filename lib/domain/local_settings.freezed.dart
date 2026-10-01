@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$LocalSettings {
 
- String? get defaultCategoryId; String? get selectedFilterCategoryId;
+ String? get defaultCategoryId; String? get selectedFilterCategoryId; String? get lastSignedInUserId;
 /// Create a copy of LocalSettings
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -27,20 +27,20 @@ $LocalSettingsCopyWith<LocalSettings> get copyWith => _$LocalSettingsCopyWithImp
 @override
 bool operator ==(Object other) {
   final _this = this as LocalSettings;
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocalSettings&&(identical(other.defaultCategoryId, _this.defaultCategoryId) || other.defaultCategoryId == _this.defaultCategoryId)&&(identical(other.selectedFilterCategoryId, _this.selectedFilterCategoryId) || other.selectedFilterCategoryId == _this.selectedFilterCategoryId));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is LocalSettings&&(identical(other.defaultCategoryId, _this.defaultCategoryId) || other.defaultCategoryId == _this.defaultCategoryId)&&(identical(other.selectedFilterCategoryId, _this.selectedFilterCategoryId) || other.selectedFilterCategoryId == _this.selectedFilterCategoryId)&&(identical(other.lastSignedInUserId, _this.lastSignedInUserId) || other.lastSignedInUserId == _this.lastSignedInUserId));
 }
 
 
 @override
 int get hashCode {
   final _this = this as LocalSettings;
-  return Object.hash(runtimeType,_this.defaultCategoryId,_this.selectedFilterCategoryId);
+  return Object.hash(runtimeType,_this.defaultCategoryId,_this.selectedFilterCategoryId,_this.lastSignedInUserId);
 }
 
 @override
 String toString() {
   final _this = this as LocalSettings;
-  return 'LocalSettings(defaultCategoryId: ${_this.defaultCategoryId}, selectedFilterCategoryId: ${_this.selectedFilterCategoryId})';
+  return 'LocalSettings(defaultCategoryId: ${_this.defaultCategoryId}, selectedFilterCategoryId: ${_this.selectedFilterCategoryId}, lastSignedInUserId: ${_this.lastSignedInUserId})';
 }
 
 
@@ -51,7 +51,7 @@ abstract mixin class $LocalSettingsCopyWith<$Res>  {
   factory $LocalSettingsCopyWith(LocalSettings value, $Res Function(LocalSettings) _then) = _$LocalSettingsCopyWithImpl;
 @useResult
 $Res call({
- String? defaultCategoryId, String? selectedFilterCategoryId
+ String? defaultCategoryId, String? selectedFilterCategoryId, String? lastSignedInUserId
 });
 
 
@@ -68,10 +68,11 @@ class _$LocalSettingsCopyWithImpl<$Res>
 
 /// Create a copy of LocalSettings
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? defaultCategoryId = freezed,Object? selectedFilterCategoryId = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? defaultCategoryId = freezed,Object? selectedFilterCategoryId = freezed,Object? lastSignedInUserId = freezed,}) {
   return _then(LocalSettings(
 defaultCategoryId: freezed == defaultCategoryId ? _self.defaultCategoryId : defaultCategoryId // ignore: cast_nullable_to_non_nullable
 as String?,selectedFilterCategoryId: freezed == selectedFilterCategoryId ? _self.selectedFilterCategoryId : selectedFilterCategoryId // ignore: cast_nullable_to_non_nullable
+as String?,lastSignedInUserId: freezed == lastSignedInUserId ? _self.lastSignedInUserId : lastSignedInUserId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }
@@ -157,10 +158,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? defaultCategoryId,  String? selectedFilterCategoryId)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String? defaultCategoryId,  String? selectedFilterCategoryId,  String? lastSignedInUserId)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _LocalSettings() when $default != null:
-return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId);case _:
+return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.lastSignedInUserId);case _:
   return orElse();
 
 }
@@ -178,10 +179,10 @@ return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? defaultCategoryId,  String? selectedFilterCategoryId)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String? defaultCategoryId,  String? selectedFilterCategoryId,  String? lastSignedInUserId)  $default,) {final _that = this;
 switch (_that) {
 case _LocalSettings():
-return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId);case _:
+return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.lastSignedInUserId);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -198,10 +199,10 @@ return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? defaultCategoryId,  String? selectedFilterCategoryId)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String? defaultCategoryId,  String? selectedFilterCategoryId,  String? lastSignedInUserId)?  $default,) {final _that = this;
 switch (_that) {
 case _LocalSettings() when $default != null:
-return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId);case _:
+return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId,_that.lastSignedInUserId);case _:
   return null;
 
 }
@@ -213,11 +214,12 @@ return $default(_that.defaultCategoryId,_that.selectedFilterCategoryId);case _:
 
 
 class _LocalSettings implements LocalSettings {
-  const _LocalSettings({this.defaultCategoryId, this.selectedFilterCategoryId});
+  const _LocalSettings({this.defaultCategoryId, this.selectedFilterCategoryId, this.lastSignedInUserId});
   
 
 @override final  String? defaultCategoryId;
 @override final  String? selectedFilterCategoryId;
+@override final  String? lastSignedInUserId;
 
 /// Create a copy of LocalSettings
 /// with the given fields replaced by the non-null parameter values.
@@ -229,18 +231,18 @@ _$LocalSettingsCopyWith<_LocalSettings> get copyWith => __$LocalSettingsCopyWith
 
 @override
 bool operator ==(Object other) {
-    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LocalSettings&&(identical(other.defaultCategoryId, defaultCategoryId) || other.defaultCategoryId == defaultCategoryId)&&(identical(other.selectedFilterCategoryId, selectedFilterCategoryId) || other.selectedFilterCategoryId == selectedFilterCategoryId));
+    return identical(this, other) || (other.runtimeType == runtimeType&&other is _LocalSettings&&(identical(other.defaultCategoryId, defaultCategoryId) || other.defaultCategoryId == defaultCategoryId)&&(identical(other.selectedFilterCategoryId, selectedFilterCategoryId) || other.selectedFilterCategoryId == selectedFilterCategoryId)&&(identical(other.lastSignedInUserId, lastSignedInUserId) || other.lastSignedInUserId == lastSignedInUserId));
 }
 
 
 @override
 int get hashCode {
-    return Object.hash(runtimeType,defaultCategoryId,selectedFilterCategoryId);
+    return Object.hash(runtimeType,defaultCategoryId,selectedFilterCategoryId,lastSignedInUserId);
 }
 
 @override
 String toString() {
-    return 'LocalSettings(defaultCategoryId: $defaultCategoryId, selectedFilterCategoryId: $selectedFilterCategoryId)';
+    return 'LocalSettings(defaultCategoryId: $defaultCategoryId, selectedFilterCategoryId: $selectedFilterCategoryId, lastSignedInUserId: $lastSignedInUserId)';
 }
 
 
@@ -251,7 +253,7 @@ abstract mixin class _$LocalSettingsCopyWith<$Res> implements $LocalSettingsCopy
   factory _$LocalSettingsCopyWith(_LocalSettings value, $Res Function(_LocalSettings) _then) = __$LocalSettingsCopyWithImpl;
 @override @useResult
 $Res call({
- String? defaultCategoryId, String? selectedFilterCategoryId
+ String? defaultCategoryId, String? selectedFilterCategoryId, String? lastSignedInUserId
 });
 
 
@@ -268,10 +270,11 @@ class __$LocalSettingsCopyWithImpl<$Res>
 
 /// Create a copy of LocalSettings
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? defaultCategoryId = freezed,Object? selectedFilterCategoryId = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? defaultCategoryId = freezed,Object? selectedFilterCategoryId = freezed,Object? lastSignedInUserId = freezed,}) {
   return _then(_LocalSettings(
 defaultCategoryId: freezed == defaultCategoryId ? _self.defaultCategoryId : defaultCategoryId // ignore: cast_nullable_to_non_nullable
 as String?,selectedFilterCategoryId: freezed == selectedFilterCategoryId ? _self.selectedFilterCategoryId : selectedFilterCategoryId // ignore: cast_nullable_to_non_nullable
+as String?,lastSignedInUserId: freezed == lastSignedInUserId ? _self.lastSignedInUserId : lastSignedInUserId // ignore: cast_nullable_to_non_nullable
 as String?,
   ));
 }

@@ -9,5 +9,6 @@ abstract class LocalSettings with _$LocalSettings {
   const factory LocalSettings({
     String? defaultCategoryId,
     String? selectedFilterCategoryId,
+    String? lastSignedInUserId,
   }) = _LocalSettings;
 }

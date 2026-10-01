@@ -15,10 +15,14 @@ class SettingsRepository {
   Future<void> setSelectedFilterCategory(String? categoryId) =>
       _dao.setSelectedFilterCategory(categoryId);
 
+  Future<void> setLastSignedInUserId(String? userId) =>
+      _dao.setLastSignedInUserId(userId);
+
   LocalSettings _toDomain(db.LocalSetting row) {
     return LocalSettings(
       defaultCategoryId: row.defaultCategoryId,
       selectedFilterCategoryId: row.selectedFilterCategoryId,
+      lastSignedInUserId: row.lastSignedInUserId,
     );
   }
 }

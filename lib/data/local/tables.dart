@@ -32,6 +32,10 @@ class LocalSettings extends Table {
   TextColumn get selectedFilterCategoryId =>
       text().nullable().references(Categories, #id)();
 
+  /// The Supabase user id last signed in on this device (M4). Used to
+  /// detect an account switch — see `AppDatabase.clearAllLocalData`.
+  TextColumn get lastSignedInUserId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }

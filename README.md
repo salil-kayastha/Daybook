@@ -7,12 +7,14 @@ A personal calendar + to-do app. See `docs/SPEC.md` for the full product and tec
 ```
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
-flutter run -d chrome --dart-define-from-file=env.json
+flutter run -d chrome --web-port=3000 --dart-define-from-file=env.json
 flutter run --dart-define-from-file=env.json
 flutter analyze && flutter test
 ```
 
 `env.json` (git-ignored): `{ "SUPABASE_URL": "...", "SUPABASE_PUBLISHABLE_KEY": "..." }`
+
+**Web must run on port 3000** (`--web-port=3000`): the Supabase project's Site URL is set to `http://localhost:3000`, and auth flows (email confirmation, password reset) redirect back to the Site URL. Running on any other port breaks those redirects.
 
 ## Web setup (Drift/sqlite3 wasm)
 
