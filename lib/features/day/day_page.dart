@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
+import '../../core/theme/breakpoints.dart';
 import '../../core/theme/theme.dart';
 import '../../core/utils/task_grouping.dart';
 import '../../domain/enums.dart';
@@ -23,6 +24,8 @@ class DayPage extends ConsumerWidget {
     required this.onOpenDetails,
     required this.onLongPressTask,
     this.autofocusQuickAdd = false,
+    this.quickAddFocusNode,
+    this.selectedTaskId,
   });
 
   final DateTime date;
@@ -33,6 +36,14 @@ class DayPage extends ConsumerWidget {
   /// the evening notification tap.
   final bool autofocusQuickAdd;
 
+  /// Shared with the keyboard-shortcuts handler (SPEC §7.6, M7) — only
+  /// given to the currently-visible page.
+  final FocusNode? quickAddFocusNode;
+
+  /// Keyboard-selected task (Up/Down, SPEC §7.6, M7) — shown with a focus
+  /// ring in [CategorySection]/[ArchivedSection].
+  final String? selectedTaskId;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final text = context.daybookText;
@@ -40,7 +51,8 @@ class DayPage extends ConsumerWidget {
     final allCategoriesAsync = ref.watch(allCategoriesProvider);
     final tasksAsync = ref.watch(tasksForDateProvider(date));
     final settingsAsync = ref.watch(localSettingsProvider);
-    final isWide = MediaQuery.sizeOf(context).width >= 700;
+    final isWide =
+        MediaQuery.sizeOf(context).width >= DaybookBreakpoints.phoneMax;
 
     for (final async in [
       activeCategoriesAsync,
@@ -121,7 +133,11 @@ class DayPage extends ConsumerWidget {
             ),
             if (isWide) ...[
               const SizedBox(height: DaybookSpacing.lg),
-              QuickAddField(date: date, autofocus: autofocusQuickAdd),
+              QuickAddField(
+                date: date,
+                autofocus: autofocusQuickAdd,
+                focusNode: quickAddFocusNode,
+              ),
             ],
             const SizedBox(height: DaybookSpacing.xl),
             if (isEmpty)
@@ -131,6 +147,7 @@ class DayPage extends ConsumerWidget {
                 CategorySection(
                   category: category,
                   tasks: groups.byActiveCategoryId[category.id] ?? const [],
+                  selectedTaskId: selectedTaskId,
                   onToggle: (task) =>
                       ref.read(taskRepositoryProvider).toggleDone(task),
                   onOpenDetails: onOpenDetails,
@@ -142,6 +159,7 @@ class DayPage extends ConsumerWidget {
                 ArchivedSection(
                   tasks: groups.archived,
                   categoriesById: categoriesById,
+                  selectedTaskId: selectedTaskId,
                   onToggle: (task) =>
                       ref.read(taskRepositoryProvider).toggleDone(task),
                   onOpenDetails: onOpenDetails,

@@ -28,3 +28,7 @@ The local database (Drift/SQLite, offline-first — see CLAUDE.md rule 1) runs o
 Currently pinned to **sqlite3 3.6.0** and **drift 2.35.0**.
 
 **When you bump `drift` or `sqlite3` in `pubspec.yaml`:** re-download both files from the matching release tag above and replace the ones in `web/`. A mismatched `sqlite3.wasm`/`drift_worker.js` pair (or a pair that doesn't match the Dart-side package version) is a common source of web-only Drift errors, including `Invalid argument(s): When compiling to the web, the 'web' parameter needs to be set` if the files are missing entirely.
+
+## Notifications debug tools (debug builds only)
+
+Settings → Notifications (scroll down) has a DEBUG section: "Send test notification now" (fires immediately), "Schedule test in 1 minute" / "2 min (exact)" (schedules via the real code path, not a shortcut), and "Show scheduled" (lists what's currently pending). See CLAUDE.md "Notifications (Android) — gotchas" for what to check when a scheduled notification doesn't fire — in particular, `adb shell dumpsys alarm` is more trustworthy than the in-app list for confirming something actually reached the OS.

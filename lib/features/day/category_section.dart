@@ -19,10 +19,12 @@ class CategorySection extends StatelessWidget {
     required this.onToggle,
     required this.onOpenDetails,
     required this.onLongPressTask,
+    this.selectedTaskId,
   });
 
   final Category category;
   final List<Task> tasks;
+  final String? selectedTaskId;
   final ValueChanged<Task> onToggle;
   final ValueChanged<Task> onOpenDetails;
   final ValueChanged<Task> onLongPressTask;
@@ -89,6 +91,7 @@ class CategorySection extends StatelessWidget {
         TimeMode.window => TaskTileTimeMode.window,
       },
       timeLabel: _timeLabel(task),
+      selected: task.id == selectedTaskId,
       onToggle: () => onToggle(task),
       onTap: () => onOpenDetails(task),
       onLongPress: () => onLongPressTask(task),

@@ -23,6 +23,7 @@ class TaskTile extends StatelessWidget {
     this.onToggle,
     this.onTap,
     this.onLongPress,
+    this.selected = false,
   });
 
   final String title;
@@ -31,6 +32,9 @@ class TaskTile extends StatelessWidget {
   final TaskTileTimeMode timeMode;
   final String? timeLabel;
   final VoidCallback? onToggle;
+
+  /// Keyboard-selected (Up/Down, SPEC §7.6, M7) — shown with a focus ring.
+  final bool selected;
 
   /// Opens the task details sheet/panel (SPEC §7.2). Never a horizontal
   /// swipe/drag — that would conflict with the day-to-day `PageView` swipe.
@@ -46,73 +50,82 @@ class TaskTile extends StatelessWidget {
     final isFinished =
         status == TaskTileStatus.done || status == TaskTileStatus.cancelled;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(DaybookRadii.card),
-      child: Material(
-        color: colors.surface,
-        child: InkWell(
-          onTap: onTap,
-          onLongPress: onLongPress,
-          child: IntrinsicHeight(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(width: 4, color: categoryColor),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: DaybookSpacing.md,
-                      vertical: DaybookSpacing.md,
-                    ),
-                    child: Row(
-                      children: [
-                        _Checkbox(
-                          status: status,
-                          colors: colors,
-                          onToggle: onToggle,
-                        ),
-                        const SizedBox(width: DaybookSpacing.sm),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                title,
-                                style: text.taskTitle.copyWith(
-                                  color: isFinished
-                                      ? colors.inkMuted
-                                      : colors.ink,
-                                  decoration: isFinished
-                                      ? TextDecoration.lineThrough
-                                      : null,
-                                ),
-                              ),
-                              if (status == TaskTileStatus.cancelled)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: DaybookSpacing.xs,
-                                  ),
-                                  child: Text(
-                                    'Cancelled',
-                                    style: text.taskMeta,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        if (timeMode != TaskTileTimeMode.none &&
-                            timeLabel != null)
-                          _TimeChip(
-                            mode: timeMode,
-                            label: timeLabel!,
+    return Container(
+      decoration: selected
+          ? BoxDecoration(
+              borderRadius: BorderRadius.circular(DaybookRadii.card + 2),
+              border: Border.all(color: colors.primary, width: 2),
+            )
+          : null,
+      padding: selected ? const EdgeInsets.all(2) : EdgeInsets.zero,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(DaybookRadii.card),
+        child: Material(
+          color: colors.surface,
+          child: InkWell(
+            onTap: onTap,
+            onLongPress: onLongPress,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Container(width: 4, color: categoryColor),
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: DaybookSpacing.md,
+                        vertical: DaybookSpacing.md,
+                      ),
+                      child: Row(
+                        children: [
+                          _Checkbox(
+                            status: status,
                             colors: colors,
-                            text: text,
+                            onToggle: onToggle,
                           ),
-                      ],
+                          const SizedBox(width: DaybookSpacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  title,
+                                  style: text.taskTitle.copyWith(
+                                    color: isFinished
+                                        ? colors.inkMuted
+                                        : colors.ink,
+                                    decoration: isFinished
+                                        ? TextDecoration.lineThrough
+                                        : null,
+                                  ),
+                                ),
+                                if (status == TaskTileStatus.cancelled)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      top: DaybookSpacing.xs,
+                                    ),
+                                    child: Text(
+                                      'Cancelled',
+                                      style: text.taskMeta,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+                          if (timeMode != TaskTileTimeMode.none &&
+                              timeLabel != null)
+                            _TimeChip(
+                              mode: timeMode,
+                              label: timeLabel!,
+                              colors: colors,
+                              text: text,
+                            ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),

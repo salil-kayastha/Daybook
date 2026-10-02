@@ -1,5 +1,7 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
+import '../../core/utils/task_grouping.dart';
+import '../../core/utils/task_sort.dart';
 import '../../data/local/database_provider.dart';
 import '../../data/repositories/category_repository.dart';
 import '../../data/repositories/settings_repository.dart';
@@ -84,6 +86,44 @@ Stream<Set<DateTime>> tasksInMonth(Ref ref, DateTime monthStart) {
   return ref
       .watch(taskRepositoryProvider)
       .watchDatesWithTasksInRange(monthStart, nextMonth);
+}
+
+/// The exact flattened order [DayPage] renders for a date — active
+/// categories in sort order (each sorted via [sortTasksForDaySection]),
+/// then the archived bucket — respecting the current filter. Used for
+/// keyboard Up/Down task selection (SPEC §7.6, M7) so arrow traversal
+/// always matches what's on screen.
+@riverpod
+Future<List<Task>> visibleTasksForDate(Ref ref, DateTime date) async {
+  final activeCategories = await ref.watch(activeCategoriesProvider.future);
+  final allCategories = await ref.watch(allCategoriesProvider.future);
+  final allTasks = await ref.watch(tasksForDateProvider(date).future);
+  final settings = await ref.watch(localSettingsProvider.future);
+  final selectedFilterId = settings.selectedFilterCategoryId;
+
+  final tasks = selectedFilterId == null
+      ? allTasks
+      : allTasks.where((t) => t.categoryId == selectedFilterId).toList();
+  final groups = groupTasksForDay(tasks, allCategories);
+
+  final sectionsToShow = selectedFilterId == null
+      ? activeCategories
+            .where((c) => groups.byActiveCategoryId[c.id]?.isNotEmpty ?? false)
+            .toList()
+      : activeCategories.where((c) => c.id == selectedFilterId).toList();
+
+  final result = <Task>[];
+  for (final category in sectionsToShow) {
+    result.addAll(
+      sortTasksForDaySection(
+        groups.byActiveCategoryId[category.id] ?? const [],
+      ),
+    );
+  }
+  if (selectedFilterId == null) {
+    result.addAll(sortTasksForDaySection(groups.archived));
+  }
+  return result;
 }
 
 /// The `PageView` page currently on screen, so the app bar (Today pill,

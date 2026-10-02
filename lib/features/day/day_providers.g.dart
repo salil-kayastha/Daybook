@@ -468,6 +468,110 @@ final class TasksInMonthFamily extends $Family
   String toString() => r'tasksInMonthProvider';
 }
 
+/// The exact flattened order [DayPage] renders for a date — active
+/// categories in sort order (each sorted via [sortTasksForDaySection]),
+/// then the archived bucket — respecting the current filter. Used for
+/// keyboard Up/Down task selection (SPEC §7.6, M7) so arrow traversal
+/// always matches what's on screen.
+
+@ProviderFor(visibleTasksForDate)
+final visibleTasksForDateProvider = VisibleTasksForDateFamily._();
+
+/// The exact flattened order [DayPage] renders for a date — active
+/// categories in sort order (each sorted via [sortTasksForDaySection]),
+/// then the archived bucket — respecting the current filter. Used for
+/// keyboard Up/Down task selection (SPEC §7.6, M7) so arrow traversal
+/// always matches what's on screen.
+
+final class VisibleTasksForDateProvider
+    extends
+        $FunctionalProvider<
+          AsyncValue<List<Task>>,
+          List<Task>,
+          FutureOr<List<Task>>
+        >
+    with $FutureModifier<List<Task>>, $FutureProvider<List<Task>> {
+  /// The exact flattened order [DayPage] renders for a date — active
+  /// categories in sort order (each sorted via [sortTasksForDaySection]),
+  /// then the archived bucket — respecting the current filter. Used for
+  /// keyboard Up/Down task selection (SPEC §7.6, M7) so arrow traversal
+  /// always matches what's on screen.
+  VisibleTasksForDateProvider._({
+    required VisibleTasksForDateFamily super.from,
+    required DateTime super.argument,
+  }) : super(
+         retry: null,
+         name: r'visibleTasksForDateProvider',
+         isAutoDispose: true,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$visibleTasksForDateHash();
+
+  @override
+  String toString() {
+    return r'visibleTasksForDateProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $FutureProviderElement<List<Task>> $createElement($ProviderPointer pointer) =>
+      $FutureProviderElement(pointer);
+
+  @override
+  FutureOr<List<Task>> create(Ref ref) {
+    final argument = this.argument as DateTime;
+    return visibleTasksForDate(ref, argument);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is VisibleTasksForDateProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$visibleTasksForDateHash() =>
+    r'e6ae4d4b6c16f23dd563f14f34ba95a2136faa1c';
+
+/// The exact flattened order [DayPage] renders for a date — active
+/// categories in sort order (each sorted via [sortTasksForDaySection]),
+/// then the archived bucket — respecting the current filter. Used for
+/// keyboard Up/Down task selection (SPEC §7.6, M7) so arrow traversal
+/// always matches what's on screen.
+
+final class VisibleTasksForDateFamily extends $Family
+    with $FunctionalFamilyOverride<FutureOr<List<Task>>, DateTime> {
+  VisibleTasksForDateFamily._()
+    : super(
+        retry: null,
+        name: r'visibleTasksForDateProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: true,
+      );
+
+  /// The exact flattened order [DayPage] renders for a date — active
+  /// categories in sort order (each sorted via [sortTasksForDaySection]),
+  /// then the archived bucket — respecting the current filter. Used for
+  /// keyboard Up/Down task selection (SPEC §7.6, M7) so arrow traversal
+  /// always matches what's on screen.
+
+  VisibleTasksForDateProvider call(DateTime date) =>
+      VisibleTasksForDateProvider._(argument: date, from: this);
+
+  @override
+  String toString() => r'visibleTasksForDateProvider';
+}
+
 /// The `PageView` page currently on screen, so the app bar (Today pill,
 /// date header) can react without every page rebuilding the controller.
 

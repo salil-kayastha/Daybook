@@ -19,10 +19,12 @@ class ArchivedSection extends StatelessWidget {
     required this.onToggle,
     required this.onOpenDetails,
     required this.onLongPressTask,
+    this.selectedTaskId,
   });
 
   final List<Task> tasks;
   final Map<String, Category> categoriesById;
+  final String? selectedTaskId;
   final ValueChanged<Task> onToggle;
   final ValueChanged<Task> onOpenDetails;
   final ValueChanged<Task> onLongPressTask;
@@ -70,6 +72,7 @@ class ArchivedSection extends StatelessWidget {
         TimeMode.window => TaskTileTimeMode.window,
       },
       timeLabel: task.startTime?.format24(),
+      selected: task.id == selectedTaskId,
       onToggle: () => onToggle(task),
       onTap: () => onOpenDetails(task),
       onLongPress: () => onLongPressTask(task),

@@ -51,5 +51,20 @@ flutter analyze && flutter test
 
 Web dev must run on port 3000 (`--web-port=3000`) — the Supabase project's Site URL is `http://localhost:3000`, and auth redirects (email confirmation, password reset) depend on it.
 
+Web also needs `web/sqlite3.wasm` and `web/drift_worker.js` checked in (not fetched by `pub get`) — see README "Web setup" for where to download them and when to re-download after bumping `drift`/`sqlite3`.
+
+## Sync notes (M5)
+- First sync on a new device/user id wipes local tasks/categories/outbox **once** then pulls everything fresh (`SyncMeta.initialSyncDoneUserId`, checked by `needsInitialSync`). It must never run a second time for the same user id — don't "fix" stale-looking local data by re-triggering this; use "Sync now" in Settings instead.
+- Sign-out pushes pending changes first, warns if any can't upload, then clears the local DB/outbox/cursors — it does not wipe on sign-in to the *same* user again.
+
+## Notifications (Android) — gotchas (M6)
+- **Manifest** (`android/app/src/main/AndroidManifest.xml`) needs `POST_NOTIFICATIONS`, `SCHEDULE_EXACT_ALARM`, `RECEIVE_BOOT_COMPLETED`, plus explicit `<receiver>` entries for `com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver` and `...ScheduledNotificationBootReceiver` — this plugin version ships no manifest of its own, so these are required, not optional.
+- **`build.gradle.kts`** needs `isCoreLibraryDesugaringEnabled = true` + the `desugar_jdk_libs` dependency (already set) or the Android build fails.
+- **Timezone init order matters**: `tz.initializeTimeZones()` then `tz.setLocalLocation(...)` must happen before any `zonedSchedule` call — `NotificationScheduler.initialize()`/`_applyLocalTimezone()` already handles this; don't call `zonedSchedule` before `initialize()` has completed.
+- **Never call `_plugin.cancelAll()` inside `rescheduleAll()`.** It previously did, and since reschedule runs on *every* ambient trigger (resume, sync pull, any task write), it was silently wiping out anything else pending — including one-off debug test schedules. `rescheduleAll` now cancels only its own known ids (`notificationIdFor`) before rewriting them. `cancelAll()` the method still exists and is correct to use for sign-out.
+- **Inexact alarms (`inexactAllowWhileIdle`, the default) can be deferred by Android's Doze/battery system for several minutes** — a 1-minute debug test not firing exactly on time is expected, not a bug. Use the exact-mode debug button (or the user's "Exact time" Settings toggle) to test precise delivery; it requires the `SCHEDULE_EXACT_ALARM` grant.
+- **Debug tools** (debug builds only, Settings → Notifications): "Send test notification now" (`.show()`, immediate), "Schedule test in 1 minute" / "2 min (exact)" (real `zonedSchedule` path), "Show scheduled" (reads `pendingNotificationRequests()` — note this API does *not* return the actual trigger time, only id/title/body, so the list decodes the date from our own id scheme instead).
+- To verify scheduling actually reached the OS (not just the in-app debug list), use `adb shell dumpsys alarm | grep -A3 daybook` and `adb shell dumpsys notification` — more reliable ground truth than anything the plugin reports back to Dart.
+
 ## Definition of done (every milestone)
 Acceptance criteria met · analyzer clean · tests pass · works on Android emulator and Chrome · light and dark checked · no hardcoded style values · SPEC checklist ticked.
