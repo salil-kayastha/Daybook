@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../theme/theme.dart';
 import 'color_dot.dart';
@@ -18,6 +20,7 @@ class TaskTile extends StatelessWidget {
     required this.title,
     required this.categoryColor,
     required this.status,
+    this.categoryLabel,
     this.timeMode = TaskTileTimeMode.none,
     this.timeLabel,
     this.onToggle,
@@ -28,6 +31,10 @@ class TaskTile extends StatelessWidget {
 
   final String title;
   final Color categoryColor;
+
+  /// Category name, for the combined accessibility label (SPEC §11 M8) —
+  /// the color bar alone conveys nothing to a screen reader.
+  final String? categoryLabel;
   final TaskTileStatus status;
   final TaskTileTimeMode timeMode;
   final String? timeLabel;
@@ -42,6 +49,27 @@ class TaskTile extends StatelessWidget {
 
   /// Opens the Edit/Move/Pick date/Cancel/Delete menu (SPEC §7.2).
   final VoidCallback? onLongPress;
+
+  String _combinedLabel() {
+    final statusLabel = switch (status) {
+      TaskTileStatus.todo => 'not done',
+      TaskTileStatus.done => 'done',
+      TaskTileStatus.cancelled => 'cancelled',
+    };
+    final timeDescription = switch (timeMode) {
+      TaskTileTimeMode.none => 'no time',
+      TaskTileTimeMode.at => timeLabel == null ? 'no time' : 'at $timeLabel',
+      TaskTileTimeMode.window =>
+        timeLabel == null ? 'no time' : 'anytime, $timeLabel',
+    };
+    final parts = [
+      title,
+      if (categoryLabel != null) '$categoryLabel category',
+      timeDescription,
+      statusLabel,
+    ];
+    return parts.join(', ');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,41 +113,62 @@ class TaskTile extends StatelessWidget {
                           ),
                           const SizedBox(width: DaybookSpacing.sm),
                           Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  title,
-                                  style: text.taskTitle.copyWith(
-                                    color: isFinished
-                                        ? colors.inkMuted
-                                        : colors.ink,
-                                    decoration: isFinished
-                                        ? TextDecoration.lineThrough
-                                        : null,
-                                  ),
-                                ),
-                                if (status == TaskTileStatus.cancelled)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: DaybookSpacing.xs,
+                            child: Semantics(
+                              label: _combinedLabel(),
+                              excludeSemantics: true,
+                              container: true,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          title,
+                                          style: text.taskTitle.copyWith(
+                                            color: isFinished
+                                                ? colors.inkMuted
+                                                : colors.ink,
+                                            decoration: isFinished
+                                                ? TextDecoration.lineThrough
+                                                : null,
+                                          ),
+                                        ),
+                                        if (status == TaskTileStatus.cancelled)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: DaybookSpacing.xs,
+                                            ),
+                                            child: Text(
+                                              'Cancelled',
+                                              style: text.taskMeta,
+                                            ),
+                                          ),
+                                      ],
                                     ),
-                                    child: Text(
-                                      'Cancelled',
-                                      style: text.taskMeta,
-                                    ),
                                   ),
-                              ],
+                                  if (timeMode != TaskTileTimeMode.none &&
+                                      timeLabel != null)
+                                    // Flexible, not a bare child: at large
+                                    // system font scales (SPEC §11 M8,
+                                    // 1.3x) a window chip's "9:00 AM –
+                                    // 6:00 PM" label can outgrow the space
+                                    // left after the title column, which
+                                    // would overflow the Row instead of
+                                    // shrinking.
+                                    Flexible(
+                                      child: _TimeChip(
+                                        mode: timeMode,
+                                        label: timeLabel!,
+                                        colors: colors,
+                                        text: text,
+                                      ),
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
-                          if (timeMode != TaskTileTimeMode.none &&
-                              timeLabel != null)
-                            _TimeChip(
-                              mode: timeMode,
-                              label: timeLabel!,
-                              colors: colors,
-                              text: text,
-                            ),
                         ],
                       ),
                     ),
@@ -151,22 +200,38 @@ class _Checkbox extends StatelessWidget {
     return Semantics(
       label: done ? 'Mark not done' : 'Mark done',
       button: true,
+      container: true,
       child: GestureDetector(
-        onTap: onToggle,
-        child: Container(
-          width: 24,
-          height: 24,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: done ? colors.success : Colors.transparent,
-            border: Border.all(
-              color: done ? colors.success : colors.line,
-              width: 1.5,
+        // 24dp of visible circle alone misses the 48dp minimum tap target
+        // (SPEC §11 M8 / CLAUDE.md rule 9) — the hit area is padded out to
+        // 48dp while only the circle itself is painted.
+        behavior: HitTestBehavior.opaque,
+        onTap: onToggle == null
+            ? null
+            : () {
+                if (!kIsWeb) HapticFeedback.lightImpact();
+                onToggle!();
+              },
+        child: SizedBox(
+          width: 48,
+          height: 48,
+          child: Center(
+            child: Container(
+              width: 24,
+              height: 24,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: done ? colors.success : Colors.transparent,
+                border: Border.all(
+                  color: done ? colors.success : colors.line,
+                  width: 1.5,
+                ),
+              ),
+              child: done
+                  ? Icon(Icons.check, size: 16, color: colors.onPrimary)
+                  : null,
             ),
           ),
-          child: done
-              ? Icon(Icons.check, size: 16, color: colors.onPrimary)
-              : null,
         ),
       ),
     );
@@ -208,7 +273,14 @@ class _TimeChip extends StatelessWidget {
             color: tint,
           ),
           const SizedBox(width: DaybookSpacing.xs),
-          Text(label, style: text.taskMeta.copyWith(color: tint)),
+          Flexible(
+            child: Text(
+              label,
+              style: text.taskMeta.copyWith(color: tint),
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+            ),
+          ),
         ],
       ),
     );

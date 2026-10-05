@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  R8/resource shrinking is off today (see android/app/build.gradle.kts and
+  README "Android release signing") so nothing strips this currently, but
+  if shrinking is enabled later, the notification small icon is referenced
+  only by string name ('ic_stat_daybook' passed to
+  AndroidInitializationSettings/AndroidNotificationDetails) rather than a
+  compiled Dart/Kotlin reference R8 can see — without this, a resource
+  shrinker could drop it as "unused", silently reintroducing the default
+  Flutter logo bug this file exists to prevent.
+-->
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ic_stat_*" />

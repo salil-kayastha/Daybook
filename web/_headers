@@ -1,0 +1,13 @@
+# Some static hosts default unknown/binary extensions to
+# application/octet-stream, which breaks WebAssembly.instantiateStreaming
+# (Drift's sqlite3 wasm build needs the real MIME type). And since this
+# file and drift_worker.js are copied verbatim (no content hash in the
+# filename — see README "Web setup"), a long default cache lifetime would
+# let a returning visitor keep an old worker after a drift/sqlite3 bump;
+# capped short instead of Cloudflare Pages' default long edge cache.
+/sqlite3.wasm
+  Content-Type: application/wasm
+  Cache-Control: public, max-age=3600
+
+/drift_worker.js
+  Cache-Control: public, max-age=3600

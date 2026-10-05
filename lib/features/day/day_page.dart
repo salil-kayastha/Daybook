@@ -11,7 +11,9 @@ import '../sync/sync_providers.dart';
 import 'archived_section.dart';
 import 'category_filter_chips.dart';
 import 'category_section.dart';
+import 'day_empty_state.dart';
 import 'day_providers.dart';
+import 'day_skeleton.dart';
 import 'quick_add_field.dart';
 
 /// One day's content: date header, filter chips, progress, and a category
@@ -68,7 +70,7 @@ class DayPage extends ConsumerWidget {
         !allCategoriesAsync.hasValue ||
         !tasksAsync.hasValue ||
         !settingsAsync.hasValue) {
-      return const Center(child: CircularProgressIndicator());
+      return DaySkeleton(isWide: isWide);
     }
 
     final activeCategories = activeCategoriesAsync.requireValue;
@@ -141,7 +143,12 @@ class DayPage extends ConsumerWidget {
             ],
             const SizedBox(height: DaybookSpacing.xl),
             if (isEmpty)
-              _EmptyDay(text: text)
+              DayEmptyState(
+                activeCategories: activeCategories,
+                allCategories: allCategories,
+                selectedFilterCategoryId: selectedFilterId,
+                isWide: isWide,
+              )
             else ...[
               for (final category in sectionsToShow) ...[
                 CategorySection(
@@ -167,26 +174,6 @@ class DayPage extends ConsumerWidget {
                 ),
             ],
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _EmptyDay extends StatelessWidget {
-  const _EmptyDay({required this.text});
-
-  final DaybookText text;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: DaybookSpacing.xxxl),
-      child: Center(
-        child: Text(
-          'Nothing planned. Add your first task.',
-          style: text.body,
-          textAlign: TextAlign.center,
         ),
       ),
     );

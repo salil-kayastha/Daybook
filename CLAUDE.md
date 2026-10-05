@@ -66,5 +66,12 @@ Web also needs `web/sqlite3.wasm` and `web/drift_worker.js` checked in (not fetc
 - **Debug tools** (debug builds only, Settings → Notifications): "Send test notification now" (`.show()`, immediate), "Schedule test in 1 minute" / "2 min (exact)" (real `zonedSchedule` path), "Show scheduled" (reads `pendingNotificationRequests()` — note this API does *not* return the actual trigger time, only id/title/body, so the list decodes the date from our own id scheme instead).
 - To verify scheduling actually reached the OS (not just the in-app debug list), use `adb shell dumpsys alarm | grep -A3 daybook` and `adb shell dumpsys notification` — more reliable ground truth than anything the plugin reports back to Dart.
 
+## Release prep (M8)
+- Debug-only tools (notification test buttons, `/style-preview`) are gated behind `kDebugMode`, not a runtime setting — a release build compiles them out structurally. Don't add a new debug-only surface without the same gate.
+- `warning`/`danger` in the **light** theme were darkened from their original M0 values to pass 4.5:1 text contrast (`lib/core/theme/colors.dart`) — don't revert them without re-checking contrast against `bg`/`surface`/`surfaceAlt`.
+- Android's main `AndroidManifest.xml` needs `INTERNET` explicitly — the debug/profile manifests get it "for free" from Flutter's own tooling, so this is invisible until a release build, which only merges the main manifest. If you add a feature that talks to the network and it mysteriously doesn't work in a release APK, check this first.
+- R8/code shrinking is **off** (`isMinifyEnabled` unset) — don't turn it on without re-checking flutter_local_notifications' manifest-declared receivers survive (see README "Android release signing").
+- Full release/deploy steps (signing, keytool, Cloudflare Pages, Supabase redirect URLs) live in README — keep that one updated, don't duplicate it here.
+
 ## Definition of done (every milestone)
 Acceptance criteria met · analyzer clean · tests pass · works on Android emulator and Chrome · light and dark checked · no hardcoded style values · SPEC checklist ticked.

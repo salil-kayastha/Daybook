@@ -44,8 +44,13 @@ class DaybookColors {
     primary: Color(0xFF3B5BDB),
     onPrimary: Color(0xFFFFFFFF),
     success: Color(0xFF2F9E44),
-    warning: Color(0xFFF08C00),
-    danger: Color(0xFFE03131),
+    // Darkened from the original F08C00/E03131 (M8, SPEC §7 a11y pass):
+    // both failed 4.5:1 as text against bg/surface/surfaceAlt — these are
+    // the minimum shift in the same hue that passes everywhere they're
+    // actually used as text (the window time chip, error text, category
+    // "default" marker).
+    warning: Color(0xFFA85200),
+    danger: Color(0xFFC92A2A),
   );
 
   static const DaybookColors dark = DaybookColors(

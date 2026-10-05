@@ -80,6 +80,7 @@ class CategorySection extends StatelessWidget {
     return TaskTile(
       title: task.title,
       categoryColor: color,
+      categoryLabel: category.name,
       status: switch (task.status) {
         TaskStatus.todo => TaskTileStatus.todo,
         TaskStatus.done => TaskTileStatus.done,

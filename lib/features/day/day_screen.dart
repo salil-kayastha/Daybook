@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -103,31 +105,26 @@ class _DayScreenState extends ConsumerState<DayScreen> {
     }
   }
 
-  void _goToToday() {
-    _controller.animateToPage(
-      _todayIndex,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
+  /// Animates unless the system "reduce motion" setting is on (SPEC §11
+  /// M8), in which case it jumps straight there instead.
+  void _goToPage(int page) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.jumpToPage(page);
+    } else {
+      _controller.animateToPage(
+        page,
+        duration: const Duration(milliseconds: 200),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
-  void _goToPreviousDay() {
-    final current = ref.read(currentDayPageIndexProvider);
-    _controller.animateToPage(
-      current - 1,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
-  }
+  void _goToToday() => _goToPage(_todayIndex);
 
-  void _goToNextDay() {
-    final current = ref.read(currentDayPageIndexProvider);
-    _controller.animateToPage(
-      current + 1,
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
-  }
+  void _goToPreviousDay() =>
+      _goToPage(ref.read(currentDayPageIndexProvider) - 1);
+
+  void _goToNextDay() => _goToPage(ref.read(currentDayPageIndexProvider) + 1);
 
   Future<void> _openDatePicker() async {
     final currentIndex = ref.read(currentDayPageIndexProvider);
@@ -144,13 +141,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
             DatePickerSheet(initialDate: dateForControllerIndex(currentIndex)),
       ),
     );
-    if (picked != null) {
-      _controller.animateToPage(
-        controllerIndexForDate(picked),
-        duration: const Duration(milliseconds: 200),
-        curve: Curves.easeOut,
-      );
-    }
+    if (picked != null) _goToPage(controllerIndexForDate(picked));
   }
 
   bool _isWide(BuildContext context) =>
@@ -229,6 +220,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
   }
 
   void _handleDeleted(Task deleted) {
+    if (!kIsWeb) HapticFeedback.lightImpact();
     _closeDetails();
     if (_selectedTask?.id == deleted.id) {
       setState(() => _selectedTask = null);
@@ -328,6 +320,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
       controller: _controller,
       itemCount: dayPageCount,
       onPageChanged: (index) {
+        if (!kIsWeb) HapticFeedback.lightImpact();
         ref.read(currentDayPageIndexProvider.notifier).set(index);
         setState(() => _selectedTask = null);
       },
@@ -354,11 +347,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           children: [
             LeftRail(
               selectedDate: currentDate,
-              onDateSelected: (date) => _controller.animateToPage(
-                controllerIndexForDate(date),
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-              ),
+              onDateSelected: (date) => _goToPage(controllerIndexForDate(date)),
               onToday: _goToToday,
             ),
             Expanded(
@@ -403,11 +392,7 @@ class _DayScreenState extends ConsumerState<DayScreen> {
           children: [
             LeftRail(
               selectedDate: currentDate,
-              onDateSelected: (date) => _controller.animateToPage(
-                controllerIndexForDate(date),
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-              ),
+              onDateSelected: (date) => _goToPage(controllerIndexForDate(date)),
               onToday: _goToToday,
             ),
             Expanded(

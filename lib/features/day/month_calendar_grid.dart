@@ -69,6 +69,7 @@ class _MonthCalendarGridState extends ConsumerState<MonthCalendarGrid> {
           children: [
             IconButton(
               icon: const Icon(Icons.chevron_left),
+              tooltip: 'Previous month',
               onPressed: () => setState(
                 () => _visibleMonth = DateTime(
                   _visibleMonth.year,
@@ -82,6 +83,7 @@ class _MonthCalendarGridState extends ConsumerState<MonthCalendarGrid> {
             ),
             IconButton(
               icon: const Icon(Icons.chevron_right),
+              tooltip: 'Next month',
               onPressed: () => setState(
                 () => _visibleMonth = DateTime(
                   _visibleMonth.year,
@@ -150,41 +152,50 @@ class _DayCell extends StatelessWidget {
     final colors = context.daybookColors;
     final text = context.daybookText;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(DaybookRadii.pill),
-      onTap: () => onTap(date),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: isSelected ? colors.primary : null,
-            ),
-            child: Text(
-              '${date.day}',
-              style: text.body.copyWith(
-                color: isSelected ? colors.onPrimary : colors.ink,
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label:
+          '${DateFormat('EEEE, d MMMM').format(date)}'
+          '${hasTasks ? ', has tasks' : ''}',
+      selected: isSelected,
+      button: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(DaybookRadii.pill),
+        onTap: () => onTap(date),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: isSelected ? colors.primary : null,
+              ),
+              child: Text(
+                '${date.day}',
+                style: text.body.copyWith(
+                  color: isSelected ? colors.onPrimary : colors.ink,
+                ),
               ),
             ),
-          ),
-          SizedBox(
-            height: 6,
-            child: hasTasks
-                ? Container(
-                    width: 4,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: colors.primary,
-                      shape: BoxShape.circle,
-                    ),
-                  )
-                : null,
-          ),
-        ],
+            SizedBox(
+              height: 6,
+              child: hasTasks
+                  ? Container(
+                      width: 4,
+                      height: 4,
+                      decoration: BoxDecoration(
+                        color: colors.primary,
+                        shape: BoxShape.circle,
+                      ),
+                    )
+                  : null,
+            ),
+          ],
+        ),
       ),
     );
   }

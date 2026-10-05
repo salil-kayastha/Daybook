@@ -144,9 +144,13 @@ class _ChecklistEditorState extends State<ChecklistEditor> {
             padding: const EdgeInsets.only(bottom: DaybookSpacing.xs),
             child: Row(
               children: [
-                Checkbox(
-                  value: item.done,
-                  onChanged: (_) => widget.onToggle(item.id),
+                Semantics(
+                  label: item.text,
+                  checked: item.done,
+                  child: Checkbox(
+                    value: item.done,
+                    onChanged: (_) => widget.onToggle(item.id),
+                  ),
                 ),
                 Expanded(
                   child: Text(
@@ -162,6 +166,7 @@ class _ChecklistEditorState extends State<ChecklistEditor> {
                   button: true,
                   child: IconButton(
                     icon: const Icon(Icons.close, size: 18),
+                    tooltip: 'Remove ${item.text}',
                     onPressed: () => widget.onRemove(item.id),
                   ),
                 ),
@@ -177,7 +182,11 @@ class _ChecklistEditorState extends State<ChecklistEditor> {
                 onSubmitted: (_) => _submit(),
               ),
             ),
-            IconButton(icon: const Icon(Icons.add), onPressed: _submit),
+            IconButton(
+              icon: const Icon(Icons.add),
+              tooltip: 'Add checklist item',
+              onPressed: _submit,
+            ),
           ],
         ),
       ],

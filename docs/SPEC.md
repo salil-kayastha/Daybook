@@ -528,12 +528,12 @@ Before writing code, give me a short bullet plan. Do not start M1 until I approv
 ---
 
 ## 16. Progress checklist
-- [ ] M0 Setup + style preview
-- [ ] M1 Local DB + Day screen
-- [ ] M2 Task CRUD + details
-- [ ] M3 Categories + filter
-- [ ] M4 Auth + Supabase
-- [ ] M5 Sync
-- [ ] M6 Notifications
-- [ ] M7 Web polish
-- [ ] M8 Release prep
+- [x] M0 Setup + style preview
+- [x] M1 Local DB + Day screen
+- [x] M2 Task CRUD + details
+- [x] M3 Categories + filter
+- [x] M4 Auth + Supabase
+- [x] M5 Sync
+- [x] M6 Notifications
+- [x] M7 Web polish
+- [x] M8 Release prep

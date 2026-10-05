@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'core/error/global_messenger.dart';
 import 'core/router/router.dart';
 import 'core/theme/theme.dart';
 import 'core/theme/theme_providers.dart';
 import 'core/utils/date_page.dart';
 import 'data/notifications/notification_tap.dart';
+import 'data/sync/sync_status.dart';
 import 'features/notifications/notification_providers.dart';
 import 'features/sync/sync_providers.dart';
 
@@ -18,19 +20,43 @@ class DaybookApp extends ConsumerStatefulWidget {
 
 class _DaybookAppState extends ConsumerState<DaybookApp>
     with WidgetsBindingObserver {
+  int _lastSeenFailedCount = 0;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     pendingNotificationTap.addListener(_handlePendingNotificationTap);
     _checkColdStartLaunch();
+    ref.read(syncEngineProvider).status.addListener(_handleSyncStatusTick);
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     pendingNotificationTap.removeListener(_handlePendingNotificationTap);
+    ref.read(syncEngineProvider).status.removeListener(_handleSyncStatusTick);
     super.dispose();
+  }
+
+  void _handleSyncStatusTick() {
+    _handleSyncStatus(ref.read(syncEngineProvider).status.value);
+  }
+
+  /// SPEC §11 M8 "friendly snackbars for sync failures": fires once per
+  /// *new* failure (edge-triggered on the count rising), not on every
+  /// status tick, so it doesn't nag on every push attempt while offline.
+  void _handleSyncStatus(SyncStatus status) {
+    if (status.failedCount > _lastSeenFailedCount) {
+      showFriendlyError(
+        status.failedCount == 1
+            ? "Couldn't sync one change. It'll keep retrying — check "
+                  'Settings for details.'
+            : "Couldn't sync ${status.failedCount} changes. They'll keep "
+                  'retrying — check Settings for details.',
+      );
+    }
+    _lastSeenFailedCount = status.failedCount;
   }
 
   /// SPEC §8: a cold start via a notification tap doesn't go through the
@@ -92,6 +118,7 @@ class _DaybookAppState extends ConsumerState<DaybookApp>
 
     return MaterialApp.router(
       title: 'Daybook',
+      scaffoldMessengerKey: globalMessengerKey,
       debugShowCheckedModeBanner: false,
       theme: DaybookTheme.build(brightness: Brightness.light),
       darkTheme: DaybookTheme.build(brightness: Brightness.dark),

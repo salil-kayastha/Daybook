@@ -69,36 +69,48 @@ class _FilterChip extends StatelessWidget {
     final colors = context.daybookColors;
     final text = context.daybookText;
 
-    return InkWell(
-      borderRadius: BorderRadius.circular(DaybookRadii.pill),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: DaybookSpacing.md,
-          vertical: DaybookSpacing.sm,
-        ),
-        decoration: BoxDecoration(
-          color: selected ? colors.primary : colors.surfaceAlt,
-          borderRadius: BorderRadius.circular(DaybookRadii.pill),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (color != null) ...[
-              Container(
-                width: 8,
-                height: 8,
-                decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label: color == null ? 'All categories' : '$label category',
+      selected: selected,
+      button: true,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(DaybookRadii.pill),
+        onTap: onTap,
+        child: Container(
+          // Visually-compact chips still need a 48dp tap target (SPEC §11
+          // M8 / CLAUDE.md rule 9) — the hit area grows to 48dp via
+          // constraints while the painted pill stays its original size.
+          constraints: const BoxConstraints(minHeight: 48),
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: DaybookSpacing.md),
+          decoration: BoxDecoration(
+            color: selected ? colors.primary : colors.surfaceAlt,
+            borderRadius: BorderRadius.circular(DaybookRadii.pill),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (color != null) ...[
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: DaybookSpacing.xs),
+              ],
+              Text(
+                label,
+                style: text.taskMeta.copyWith(
+                  color: selected ? colors.onPrimary : colors.ink,
+                ),
               ),
-              const SizedBox(width: DaybookSpacing.xs),
             ],
-            Text(
-              label,
-              style: text.taskMeta.copyWith(
-                color: selected ? colors.onPrimary : colors.ink,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );

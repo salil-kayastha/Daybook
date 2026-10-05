@@ -118,40 +118,46 @@ class _RailFilterRow extends StatelessWidget {
     final colors = context.daybookColors;
     final text = context.daybookText;
 
-    return Material(
-      color: selected ? colors.surfaceAlt : Colors.transparent,
-      borderRadius: BorderRadius.circular(DaybookRadii.chip),
-      child: InkWell(
+    return Semantics(
+      container: true,
+      excludeSemantics: true,
+      label: color == null ? 'All categories' : '$label category',
+      selected: selected,
+      button: true,
+      child: Material(
+        color: selected ? colors.surfaceAlt : Colors.transparent,
         borderRadius: BorderRadius.circular(DaybookRadii.chip),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: DaybookSpacing.sm,
-            vertical: DaybookSpacing.sm,
-          ),
-          child: Row(
-            children: [
-              if (color != null) ...[
-                Container(
-                  width: 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: color,
-                    shape: BoxShape.circle,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(DaybookRadii.chip),
+          onTap: onTap,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 48),
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: DaybookSpacing.sm),
+            child: Row(
+              children: [
+                if (color != null) ...[
+                  Container(
+                    width: 8,
+                    height: 8,
+                    decoration: BoxDecoration(
+                      color: color,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
+                  const SizedBox(width: DaybookSpacing.sm),
+                ] else
+                  const SizedBox(width: 16),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: text.body.copyWith(
+                      color: selected ? colors.ink : colors.inkMuted,
+                    ),
                   ),
                 ),
-                const SizedBox(width: DaybookSpacing.sm),
-              ] else
-                const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: text.body.copyWith(
-                    color: selected ? colors.ink : colors.inkMuted,
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

@@ -1,4 +1,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Supabase sync/auth (SPEC §10). The debug/profile manifests get this
+         "for free" from the Flutter tool's own hot-reload permission (see
+         android/app/src/debug/AndroidManifest.xml) — release builds only
+         merge THIS manifest, so without it a release APK has no network
+         access at all despite working fine in every debug run (SPEC §11
+         M8 — this is exactly the "works in debug, no network in release"
+         trap CLAUDE.md warns about). -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <!-- Local notifications (M6, SPEC §8). -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM"/>
@@ -6,7 +14,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
 
     <application
-        android:label="daybook"
+        android:label="Daybook"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

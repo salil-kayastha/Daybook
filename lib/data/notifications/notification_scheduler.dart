@@ -6,6 +6,7 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
+import '../../core/theme/colors.dart';
 import '../../core/utils/notification_builder.dart';
 import '../../core/utils/timezone_change.dart';
 import '../../domain/task.dart';
@@ -45,7 +46,12 @@ class NotificationScheduler {
     tz_data.initializeTimeZones();
     await _applyLocalTimezone();
 
-    const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
+    // Must be a white-on-transparent drawable (`ic_stat_daybook`), never
+    // the full-color launcher mipmap — Android rejects a non-silhouette
+    // icon here and silently falls back to the default white Flutter
+    // logo, which is exactly the bug this fixes. See README "Notification
+    // icon" for where the drawable lives and how to regenerate it.
+    const androidInit = AndroidInitializationSettings('ic_stat_daybook');
     const iosInit = DarwinInitializationSettings(
       // Requested later, after the first task is created (SPEC §8) — not
       // at first launch.
@@ -262,6 +268,8 @@ class NotificationScheduler {
             : 'Evening reminder to plan tomorrow',
         importance: Importance.defaultImportance,
         priority: Priority.defaultPriority,
+        icon: 'ic_stat_daybook',
+        color: DaybookColors.light.primary,
       ),
       iOS: const DarwinNotificationDetails(),
     );
@@ -324,10 +332,12 @@ class NotificationScheduler {
       title: 'Test notification',
       body: 'This is a Daybook test notification.',
       notificationDetails: NotificationDetails(
-        android: const AndroidNotificationDetails(
+        android: AndroidNotificationDetails(
           dailySummaryChannelId,
           'Daily summary',
           channelDescription: 'Your morning task summary',
+          icon: 'ic_stat_daybook',
+          color: DaybookColors.light.primary,
         ),
         iOS: const DarwinNotificationDetails(),
       ),
